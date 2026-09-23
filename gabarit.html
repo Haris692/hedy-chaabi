@@ -119,7 +119,10 @@ tr.scored td{background:color-mix(in srgb,var(--series-1) 7%,transparent)}
   padding:1px 7px;font-size:13px;font-weight:700;margin-inline-end:4px}
 .num{text-align:end;font-variant-numeric:tabular-nums;width:1%;white-space:nowrap}
 .sea,.cl{white-space:nowrap}
-.cl{font-weight:600}
+.cl{font-weight:600;display:flex;align-items:center;gap:9px}
+.crest{width:24px;height:24px;object-fit:contain;flex:0 0 auto}
+td.num.goals{font-weight:700;color:var(--ink)}
+td.num.empty{color:var(--ink-3)}
 .scroll{overflow-x:auto}
 
 /* Ilots ecrits de gauche a droite, y compris quand la page passe en arabe.
@@ -302,10 +305,12 @@ footer .wrap{max-width:980px}
         <thead><tr>
           <th data-t="th_season"></th><th data-t="th_club"></th><th data-t="th_comp"></th>
           <th class="num" data-t="th_apps"></th><th class="num" data-t="th_g"></th>
+          <th class="num" data-t="th_a"></th><th class="num" data-t="th_min"></th>
         </tr></thead>
         <tbody>{{CARRIERE}}</tbody>
       </table>
     </div>
+    <div class="note" data-t="career_b"></div>
     <p class="src" data-t="career_note"></p>
   </div>
 </section>
@@ -370,6 +375,11 @@ function apply(lang){
     el.textContent = JSON.parse(el.dataset.tj)[lang];
   });
   dates(lang);
+  /* 2417 -> « 2,417 » en anglais, « 2 417 » en francais : un nombre de minutes
+     a quatre chiffres se lit mal collee. */
+  document.querySelectorAll("[data-num]").forEach(el => {
+    el.textContent = Number(el.dataset.num).toLocaleString(LOCALE[lang]);
+  });
   const sup = o => (o[lang] ? "<sup>" + o[lang] + "</sup>" : "");
   document.getElementById("v-age").textContent = D.age;
   document.getElementById("v-height").textContent = D.height;

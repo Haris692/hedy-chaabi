@@ -23,9 +23,21 @@ python construire.py [chemin/du/codage.xml]
 | `football-stats-scraper/data/*.json` | saison koweïtienne : matchs, buteurs, classement, fiche joueur, photo |
 | le XML du tagger (`kazma-tagger`) | le relevé vidéo du match J13 : 48 actions |
 | `SOURCES_CARRIERE` dans `construire.py` | la carrière hors Koweït, chaque ligne avec sa source |
+| `logos.json` (produit par `logos.py`) | les écussons des clubs, en `data:` URI |
 
 `gabarit.html` est le squelette (mise en page, styles, script) ; `construire.py`
 y injecte les données et les textes des trois langues.
+
+## Les chiffres de carrière
+
+Ils viennent de `footballdatabase.eu`, **chaque ligne recoupée** : le site publie
+une colonne « efficacité » qui vaut minutes ÷ buts. Quand elle retombe sur le
+quotient, la ligne se tient ; sinon elle ne figure pas dans la page. Ce n'est pas
+de la prudence de principe — une première lecture automatique du tableau donnait
+« 5 buts et 17 passes décisives en 870 minutes », parce que les colonnes étaient
+décalées d'un cran.
+
+Coupe d'Algérie : Soccerway. Ligue des champions CAF : ESPN. Koweït : Sofascore.
 
 ## Les trois pièges déjà traités
 

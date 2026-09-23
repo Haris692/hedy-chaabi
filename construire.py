@@ -20,7 +20,7 @@ SCRAPER = r"C:/Users/Haris/football-stats-scraper/data"
 XML_DEFAUT = r"C:/Users/Haris/Downloads/2026-09-17-al-jazeera-adversaire-codage (1).xml"
 JOUEUR_ID = 1396246
 
-CONTACT_MAIL = "harisgarrigos692@gmail.com"
+CONTACT_MAIL = "haris.c@hotmail.fr"
 
 # Les deux seuls matchs entiers en ligne (releve du 17/09/2026).
 VIDEOS = [
@@ -31,37 +31,58 @@ VIDEOS = [
 ]
 
 # Hors Koweit, aucune source ne se scrape : on recopie, avec la source en face.
+#
+# Chaque ligne chiffree de footballdatabase.eu a ete VERIFIEE par recoupement
+# interne : le site publie une colonne « efficacite » qui vaut minutes / buts.
+# Quand elle retombe sur le quotient, la ligne se tient. Les lignes ou elle ne
+# retombait pas ne sont pas ici. (Une premiere lecture automatique du tableau
+# donnait « 5 buts et 17 passes en 870 minutes » : les colonnes etaient
+# decalees. D'ou la verification.)
+def C(saison, club, logo, en, fr, ar, m=None, b=None, pd=None, mn=None, src="fdb"):
+    return {"saison": saison, "club": club, "logo": logo,
+            "comp": {"en": en, "fr": fr, "ar": ar},
+            "matchs": m, "buts": b, "passes": pd, "minutes": mn, "src": src}
+
+
 SOURCES_CARRIERE = [
-    {"saison": "2025/26", "club": "Al Jazeera FC", "pays": "KW",
-     "comp": {"en": "Zain First Division", "fr": "Zain First Division",
-              "ar": "دوري زين للدرجة الأولى"},
-     "matchs": None, "buts": 4, "src": "sofascore"},
-    {"saison": "2024/25", "club": "CR Belouizdad", "pays": "DZ",
-     "comp": {"en": "Ligue 1 (Algeria)", "fr": "Ligue 1 (Algérie)",
-              "ar": "الرابطة المحترفة الأولى (الجزائر)"},
-     "matchs": 19, "buts": 0, "src": "soccerway"},
-    {"saison": "2024/25", "club": "CR Belouizdad", "pays": "DZ",
-     "comp": {"en": "Algerian Cup", "fr": "Coupe d'Algérie",
-              "ar": "كأس الجزائر"},
-     "matchs": 1, "buts": 1, "src": "soccerway"},
-    {"saison": "2024/25", "club": "CR Belouizdad", "pays": "DZ",
-     "comp": {"en": "CAF Champions League", "fr": "Ligue des champions CAF",
-              "ar": "دوري أبطال أفريقيا"},
-     "matchs": 3, "buts": 0, "src": "soccerway"},
-    {"saison": "2023/24", "club": "Francs Borains", "pays": "BE",
-     "comp": {"en": "Challenger Pro League (2nd tier)",
-              "fr": "Challenger Pro League (D2)",
-              "ar": "تشالنجر برو ليغ (الدرجة الثانية)"},
-     "matchs": 25, "buts": 2, "src": "soccerway"},
-    {"saison": "2023/24", "club": "Francs Borains", "pays": "BE",
-     "comp": {"en": "Belgian Cup", "fr": "Coupe de Belgique",
-              "ar": "كأس بلجيكا"},
-     "matchs": 1, "buts": 0, "src": "soccerway"},
-    {"saison": "2016-2023", "club": "Francs Borains", "pays": "BE",
-     "comp": {"en": "3rd tier → National 1 → promotion",
-              "fr": "D3 → Nationale 1 → montée",
-              "ar": "الدرجة الثالثة ← الوطنية الأولى ← صعود"},
-     "matchs": None, "buts": None, "src": "club"},
+    C("2025/26", "Al Jazeera FC", "jazeera",
+      "Zain First Division", "Zain First Division", "دوري زين للدرجة الأولى",
+      b=4, src="sofascore"),
+    C("2024/25", "CR Belouizdad", "belouizdad",
+      "Ligue 1 (Algeria)", "Ligue 1 (Algérie)", "الرابطة المحترفة الأولى (الجزائر)",
+      m=18, b=0, mn=633),
+    C("2024/25", "CR Belouizdad", "belouizdad",
+      "Algerian Cup", "Coupe d'Algérie", "كأس الجزائر",
+      m=1, b=1, src="soccerway"),
+    C("2024/25", "CR Belouizdad", "belouizdad",
+      "CAF Champions League", "Ligue des champions CAF", "دوري أبطال أفريقيا",
+      m=3, b=0, pd=1, mn=94, src="espn"),
+    C("2023/24", "Francs Borains", "borains",
+      "Challenger Pro League (2nd tier)", "Challenger Pro League (D2)",
+      "تشالنجر برو ليغ (الدرجة الثانية)", m=25, b=2, pd=2, mn=791),
+    C("2022/23", "Francs Borains", "borains",
+      "National 1 (3rd tier) — promoted", "Nationale 1 (D3) — montée",
+      "الوطنية الأولى (الدرجة الثالثة) — صعود", m=37, b=8, mn=2417),
+    C("2021/22", "Francs Borains", "borains",
+      "National 1 (3rd tier)", "Nationale 1 (D3)",
+      "الوطنية الأولى (الدرجة الثالثة)", m=13, b=1, mn=635),
+    C("2020-2022", "FC Rot-Weiß Erfurt", "erfurt",
+      "Oberliga (Germany)", "Oberliga (Allemagne)", "أوبرليغا (ألمانيا)"),
+    C("2019/20", "Francs Borains", "borains",
+      "Division 2 Amateur (4th tier)", "Division 2 Amateurs (D4)",
+      "الدرجة الثانية للهواة (الرابعة)", m=21, b=11, mn=1631),
+    C("2018/19", "Francs Borains", "borains",
+      "Division 2 Amateur (4th tier)", "Division 2 Amateurs (D4)",
+      "الدرجة الثانية للهواة (الرابعة)", m=29, b=10, mn=2005),
+    C("2016-2018", "Francs Borains", "borains",
+      "Division 3 Amateur (5th tier)", "Division 3 Amateurs (D5)",
+      "الدرجة الثالثة للهواة (الخامسة)"),
+    C("2015/16", "AS Saint-Priest", "saintpriest",
+      "CFA 2 (France)", "CFA 2 (France)", "الدرجة الخامسة (فرنسا)",
+      m=15, b=2, mn=475),
+    C("2014/15", "ESTAC Troyes B", "troyes",
+      "CFA (France)", "CFA (France)", "الدرجة الرابعة (فرنسا)",
+      m=19, b=0, mn=747),
 ]
 
 PALETTE = {  # validee par valide_palette.py, clair et sombre
@@ -217,9 +238,9 @@ TRAD = {
                  "fr": "Disponible depuis la fin de la saison koweïtienne, le 20 août 2026",
                  "ar": "متاح منذ نهاية الموسم الكويتي في 20 أغسطس 2026"},
  "f_age": {"en": "Age", "fr": "Âge", "ar": "العمر"},
- "f_born": {"en": "Born 30 Oct 1995, Nice (France)",
-            "fr": "Né le 30/10/1995 à Nice (France)",
-            "ar": "من مواليد 30 أكتوبر 1995، نيس (فرنسا)"},
+ "f_born": {"en": "Born 30 Oct 1995 in Lyon (France)",
+            "fr": "Né le 30/10/1995 à Lyon (France)",
+            "ar": "من مواليد 30 أكتوبر 1995 في ليون (فرنسا)"},
  "f_height": {"en": "Height", "fr": "Taille", "ar": "الطول"},
  "f_foot": {"en": "Strong foot", "fr": "Pied fort", "ar": "القدم المفضلة"},
  "f_left": {"en": "Left", "fr": "Gauche", "ar": "اليسرى"},
@@ -357,35 +378,63 @@ TRAD = {
 
  "s_career": {"en": "Career", "fr": "Carrière", "ar": "المسيرة"},
  "career_intro": {
-   "en": "Trained in France, he built his career in Belgium: he joined Francs "
-         "Borains in 2016 and went up with them through three divisions, which "
-         "earned him the nickname of &laquo;&nbsp;the man of the three "
-         "promotions&nbsp;&raquo; at the club. Then the Challenger Pro League, "
-         "then Algeria &mdash; league, cup and CAF Champions League with "
-         "CR Belouizdad &mdash; then Kuwait.",
-   "fr": "Formé en France, il fait sa carrière en Belgique : arrivé aux Francs "
-         "Borains en 2016, il monte avec eux sur trois divisions, ce qui lui vaut "
-         "le surnom de &laquo;&nbsp;l'homme aux trois montées&nbsp;&raquo; au club. "
-         "Puis la Challenger Pro League, puis l'Algérie &mdash; championnat, coupe "
-         "et Ligue des champions CAF avec le CR Belouizdad &mdash; puis le Koweït.",
-   "ar": "تكوّن في فرنسا وبنى مسيرته في بلجيكا: التحق بفرانك بوران عام 2016 وصعد "
-         "معه ثلاث درجات، وهو ما أكسبه في النادي لقب &laquo;&nbsp;صاحب "
-         "الصعودات الثلاثة&nbsp;&raquo;. ثم تشالنجر برو ليغ، ثم الجزائر "
-         "&mdash; الدوري والكأس ودوري أبطال أفريقيا مع شباب بلوزداد &mdash; ثم الكويت."},
+   "en": "Trained in France, he built his career in Belgium. He joined Francs "
+         "Borains in 2016 and went up three divisions with them, which earned "
+         "him the nickname of &laquo;&nbsp;the man of the three "
+         "promotions&nbsp;&raquo; at the club: <b>21 goals in two seasons</b> in "
+         "the fourth tier, then <b>8 in the promotion season</b>, over 2,417 "
+         "minutes. Then the Challenger Pro League, then Algeria &mdash; league, "
+         "cup and CAF Champions League with CR Belouizdad &mdash; then Kuwait.",
+   "fr": "Formé en France, il fait sa carrière en Belgique. Arrivé aux Francs "
+         "Borains en 2016, il monte trois divisions avec eux, ce qui lui vaut au "
+         "club le surnom de &laquo;&nbsp;l'homme aux trois montées&nbsp;&raquo; : "
+         "<b>21 buts en deux saisons</b> de D4, puis <b>8 lors de la saison de "
+         "montée</b>, en 2 417 minutes. Puis la Challenger Pro League, puis "
+         "l'Algérie &mdash; championnat, coupe et Ligue des champions CAF avec le "
+         "CR Belouizdad &mdash; puis le Koweït.",
+   "ar": "تكوّن في فرنسا وبنى مسيرته في بلجيكا. التحق بفرانك بوران عام 2016 وصعد "
+         "معه ثلاث درجات، وهو ما أكسبه في النادي لقب &laquo;&nbsp;صاحب الصعودات "
+         "الثلاثة&nbsp;&raquo;: <b>21 هدفًا في موسمين</b> بالدرجة الرابعة، ثم "
+         "<b>8 أهداف في موسم الصعود</b> خلال 2417 دقيقة. ثم تشالنجر برو ليغ، ثم "
+         "الجزائر &mdash; الدوري والكأس ودوري أبطال أفريقيا مع شباب بلوزداد "
+         "&mdash; ثم الكويت."},
+ "career_b": {
+   "en": "<b>The minutes explain the Algerian season.</b> At CR Belouizdad he "
+         "came off the bench: 26 appearances across league, cup and CAF "
+         "Champions League for <b>870 minutes</b> &mdash; 33 minutes per "
+         "appearance, with one assist in the Champions League. In Kuwait, with a "
+         "real role, he scored four times in ten rounds.",
+   "fr": "<b>Les minutes expliquent la saison algérienne.</b> Au CR Belouizdad il "
+         "entre en cours de jeu : 26 apparitions entre championnat, coupe et "
+         "Ligue des champions CAF pour <b>870 minutes</b> &mdash; 33 minutes par "
+         "apparition, et une passe décisive en Ligue des champions. Au Koweït, "
+         "avec un vrai rôle, il marque quatre fois en dix journées.",
+   "ar": "<b>الدقائق تفسّر الموسم الجزائري.</b> في شباب بلوزداد كان يدخل من مقعد "
+         "البدلاء: 26 مشاركة بين الدوري والكأس ودوري أبطال أفريقيا مقابل "
+         "<b>870 دقيقة</b> &mdash; 33 دقيقة لكل مشاركة، مع تمريرة حاسمة في دوري "
+         "الأبطال. وفي الكويت، وبدور حقيقي، سجّل أربع مرات في عشر جولات."},
  "th_season": {"en": "Season", "fr": "Saison", "ar": "الموسم"},
  "th_club": {"en": "Club", "fr": "Club", "ar": "النادي"},
  "th_comp": {"en": "Competition", "fr": "Compétition", "ar": "المسابقة"},
  "th_apps": {"en": "Apps", "fr": "Matchs", "ar": "مباريات"},
  "th_g": {"en": "Goals", "fr": "Buts", "ar": "أهداف"},
+ "th_a": {"en": "Assists", "fr": "Passes déc.", "ar": "تمريرات حاسمة"},
+ "th_min": {"en": "Minutes", "fr": "Minutes", "ar": "الدقائق"},
  "career_note": {
-   "en": "Appearance counts before 2023/24 are not consistently published; the "
-         "rows above are given only where a public source states them.",
-   "fr": "Les nombres de matchs avant 2023/24 ne sont pas publiés de façon "
-         "cohérente ; les lignes ci-dessus ne sont remplies que là où une source "
-         "publique les donne.",
-   "ar": "أعداد المباريات قبل موسم 2023/24 غير منشورة بشكل متّسق؛ ولم تُملأ "
-         "الخانات أعلاه إلا حيث يذكرها مصدر علني."},
-
+   "en": "Belgian, French and Algerian figures: footballdatabase.eu, each line "
+         "cross-checked against the minutes-per-goal it publishes. Algerian Cup: "
+         "Soccerway. CAF Champions League: ESPN. Kuwait: Sofascore. Blank cells "
+         "are seasons no public source states &mdash; they are left blank rather "
+         "than guessed.",
+   "fr": "Chiffres belges, français et algériens : footballdatabase.eu, chaque "
+         "ligne recoupée avec les minutes par but que le site publie. Coupe "
+         "d'Algérie : Soccerway. Ligue des champions CAF : ESPN. Koweït : "
+         "Sofascore. Les cases vides sont les saisons qu'aucune source publique "
+         "ne chiffre &mdash; elles restent vides plutôt que devinées.",
+   "ar": "الأرقام البلجيكية والفرنسية والجزائرية: footballdatabase.eu، وكل سطر "
+         "تم التحقق منه عبر معدل الدقائق لكل هدف الذي ينشره الموقع. كأس الجزائر: "
+         "Soccerway. دوري أبطال أفريقيا: ESPN. الكويت: Sofascore. الخانات "
+         "الفارغة مواسم لا يذكرها أي مصدر علني &mdash; تُركت فارغة بدل تخمينها."},
  "s_video": {"en": "Full matches on video", "fr": "Matchs entiers en vidéo",
              "ar": "مباريات كاملة بالفيديو"},
  "video_intro": {
@@ -466,15 +515,26 @@ def construire(xml_path):
     table_matchs = "".join(lignes)
 
     # ---- tableau de carriere
+    logos = json.load(io.open(os.path.join(ICI, "logos.json"), encoding="utf-8"))
     cl = []
     for r in SOURCES_CARRIERE:
-        cl.append('<tr><td class="sea">%s</td><td class="cl">%s</td>'
-                  '<td class="cp" data-tj="%s"></td>'
-                  '<td class="num">%s</td><td class="num">%s</td></tr>'
-                  % (r["saison"], r["club"],
+        ecusson = ('<img class="crest" src="%s" alt="" loading="lazy">' % logos[r["logo"]]
+                   if r["logo"] in logos else "")
+        def num(v, but=False):
+            """Une case chiffree. Le tiret des saisons non publiees reste
+            discret, et seuls les buts REELLEMENT marques sont en gras : un
+            « 0 » en gras attire l'oeil sur ce qui n'existe pas."""
+            if v is None:
+                return '<td class="num empty">&mdash;</td>'
+            cls = "num goals" if but and v else "num"
+            return '<td class="%s" data-num="%d">%d</td>' % (cls, v, v)
+        cl.append('<tr><td class="sea">%s</td>'
+                  '<td class="cl">%s<span>%s</span></td>'
+                  '<td class="cp" data-tj="%s"></td>%s%s%s%s</tr>'
+                  % (r["saison"], ecusson, r["club"],
                      html_attr(json.dumps(r["comp"], ensure_ascii=False)),
-                     "&mdash;" if r["matchs"] is None else r["matchs"],
-                     "&mdash;" if r["buts"] is None else r["buts"]))
+                     num(r["matchs"]), num(r["buts"], but=True),
+                     num(r["passes"]), num(r["minutes"])))
     table_carriere = "".join(cl)
 
     # ---- videos
