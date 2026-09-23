@@ -130,7 +130,11 @@ td.num.empty{color:var(--ink-3)}
    caractere neutre entre deux nombres) : le score affiche devient FAUX, et
    seul un lecteur arabophone le remarque. Meme chose pour les graphiques,
    dont les etiquettes latines se collaient au mauvais bord. */
-.res,.g,.sea,.bars,.pitch,.vid span{direction:ltr;unicode-bidi:isolate}
+/* NB : pas `.vid span` ici. Il contient une date ecrite par le navigateur
+   dans la langue lue ; la forcer en LTR sortait « فبراير 20 2026 » au lieu
+   de « 20 فبراير 2026 ». On n'isole que ce qui melange chiffres et signes
+   neutres. */
+.res,.g,.sea,.bars,.pitch{direction:ltr;unicode-bidi:isolate}
 .bars text{direction:ltr}
 
 /* ---------------- figures ---------------- */
@@ -165,6 +169,8 @@ html[dir="rtl"] .mstat{padding:2px 14px 2px 0}
 .note.warn{border-inline-start-color:var(--series-2)}
 
 /* ---------------- video ---------------- */
+h3.sub{font-size:15px;margin:22px 0 8px;letter-spacing:.01em}
+h3.sub+.lede{margin-bottom:16px}
 .vids{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 .vid{display:flex;gap:12px;align-items:center;background:var(--surface-1);
   border:1px solid var(--line);border-radius:var(--r);padding:10px;text-decoration:none;
@@ -318,8 +324,12 @@ footer .wrap{max-width:980px}
 <section id="video">
   <div class="wrap">
     <h2 data-t="s_video"></h2>
+    <h3 class="sub" data-t="v_full"></h3>
     <p class="lede" data-t="video_intro"></p>
     <div class="vids">{{VIDEOS}}</div>
+    <h3 class="sub" style="margin-top:34px" data-t="v_reel"></h3>
+    <p class="lede" data-t="v_reel_b"></p>
+    <div class="vids">{{COMPILS}}</div>
   </div>
 </section>
 

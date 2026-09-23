@@ -22,12 +22,21 @@ JOUEUR_ID = 1396246
 
 CONTACT_MAIL = "haris.c@hotmail.fr"
 
-# Les deux seuls matchs entiers en ligne (releve du 17/09/2026).
+# Les deux seuls matchs entiers en ligne (releve du 17/09/2026), puis les
+# compilations. Les deux natures ne se melangent pas : un match entier se
+# regarde pour juger, un montage se regarde pour voir un geste. Les titres des
+# compilations sont recopies tels quels, avec leur chaine — ce ne sont pas nos
+# images et la page ne les presente pas comme telles.
 VIDEOS = [
-    {"round": 12, "id": "iCsZfTOaguk", "date": "2026-02-05",
-     "match": "Al Jazeera 3-1 Al Sahel"},
-    {"round": 13, "id": "JoN2MlJqePY", "date": "2026-02-20",
-     "match": "Al Jazeera 3-3 Yarmouk"},
+    {"type": "match", "id": "iCsZfTOaguk", "date": "2026-02-05",
+     "titre": "Al Jazeera 3-1 Al Sahel", "sous": None},
+    {"type": "match", "id": "JoN2MlJqePY", "date": "2026-02-20",
+     "titre": "Al Jazeera 3-3 Yarmouk", "sous": None},
+    {"type": "reel", "id": "j7lk3kXSIhs", "date": None,
+     "titre": "Skills, Goals &amp; Assists — Francs Borains, Rot-Wei&szlig; Erfurt",
+     "sous": "Highlights Football Room"},
+    {"type": "reel", "id": "R6ZvwA57ezI", "date": None,
+     "titre": "Hedy Chaabi — Francs Borains", "sous": "Fou2Foot"},
 ]
 
 # Hors Koweit, aucune source ne se scrape : on recopie, avec la source en face.
@@ -435,8 +444,19 @@ TRAD = {
          "تم التحقق منه عبر معدل الدقائق لكل هدف الذي ينشره الموقع. كأس الجزائر: "
          "Soccerway. دوري أبطال أفريقيا: ESPN. الكويت: Sofascore. الخانات "
          "الفارغة مواسم لا يذكرها أي مصدر علني &mdash; تُركت فارغة بدل تخمينها."},
- "s_video": {"en": "Full matches on video", "fr": "Matchs entiers en vidéo",
-             "ar": "مباريات كاملة بالفيديو"},
+ "s_video": {"en": "Video", "fr": "Vidéo", "ar": "الفيديو"},
+ "v_full": {"en": "Full matches", "fr": "Matchs entiers", "ar": "مباريات كاملة"},
+ "v_reel": {"en": "Highlight reels", "fr": "Compilations", "ar": "ملخّصات مجمّعة"},
+ "v_reel_b": {
+   "en": "Two compilations put together by third-party channels, from his years "
+         "in Belgium and Germany. Watch them for the actions themselves &mdash; a "
+         "montage shows what a player can do, never how often he does it.",
+   "fr": "Deux compilations montées par des chaînes tierces, sur ses années en "
+         "Belgique et en Allemagne. À regarder pour les gestes eux-mêmes &mdash; un "
+         "montage montre ce qu'un joueur sait faire, jamais à quelle fréquence.",
+   "ar": "ملخّصان من إعداد قنوات مستقلة، من سنواته في بلجيكا وألمانيا. يُشاهَدان "
+         "من أجل اللقطات نفسها &mdash; فالمونتاج يُظهر ما يستطيع اللاعب فعله، لا "
+         "عدد مرات فعله."},
  "video_intro": {
    "en": "The Kuwaiti federation published two of his matches in full. Both are "
          "complete broadcasts, not highlight packages.",
@@ -538,17 +558,22 @@ def construire(xml_path):
     table_carriere = "".join(cl)
 
     # ---- videos
-    vid = []
-    for v in VIDEOS:
-        tag = ('<span class="tag" data-t="tagged_here"></span>'
-               if v["round"] == 13 else "")
-        vid.append(
-            '<a class="vid" href="https://www.youtube.com/watch?v=%s" '
-            'target="_blank" rel="noopener">'
-            '<img src="https://img.youtube.com/vi/%s/mqdefault.jpg" alt="" loading="lazy">'
-            '<div><b>%s</b><span data-date="%s"></span>%s</div></a>'
-            % (v["id"], v["id"], v["match"], v["date"], tag))
-    videos = "".join(vid)
+    def cartes(nature):
+        out = []
+        for v in [x for x in VIDEOS if x["type"] == nature]:
+            tag = ('<span class="tag" data-t="tagged_here"></span>'
+                   if v["id"] == "JoN2MlJqePY" else "")
+            second = ('<span data-date="%s"></span>' % v["date"] if v["date"]
+                      else '<span>%s</span>' % v["sous"])
+            out.append(
+                '<a class="vid" href="https://www.youtube.com/watch?v=%s" '
+                'target="_blank" rel="noopener">'
+                '<img src="https://img.youtube.com/vi/%s/mqdefault.jpg" alt="" loading="lazy">'
+                '<div><b>%s</b>%s%s</div></a>'
+                % (v["id"], v["id"], v["titre"], second, tag))
+        return "".join(out)
+
+    videos, compils = cartes("match"), cartes("reel")
 
     donnees = {
         "age": f["age"], "height": f["height"],
@@ -569,6 +594,7 @@ def construire(xml_path):
     html = html.replace("{{CARRIERE}}", table_carriere)
     html = html.replace("{{BARRES}}", barres_buteurs(c["club_buteurs"], JOUEUR_ID))
     html = html.replace("{{VIDEOS}}", videos)
+    html = html.replace("{{COMPILS}}", compils)
     html = html.replace("{{MAIL}}", CONTACT_MAIL)
     for k, v in terrains.items():
         html = html.replace("{{PITCH_%s}}" % k.upper(), v)
