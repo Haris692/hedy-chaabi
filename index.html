@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hedy Chaabi — Attacking midfielder</title>
+<meta name="description" content="Hedy Chaabi, Algerian attacking midfielder, free agent. Career record, 2025/26 Kuwaiti season and a full match tagged action by action.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<style>
+:root{
+  color-scheme: light;
+  --surface-0:#f4f3f0; --surface-1:#fcfcfb; --surface-2:#eceae5;
+  --ink:#121211; --ink-2:#52514e; --ink-3:#7c7b75;
+  --line:#dedcd6; --line-2:#c9c7c0;
+  --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a;
+  --bar-muted:#cbc9c3; --pitch-line:#c3c1ba; --pitch-bg:#f7f6f3;
+  --hero-bg:#14171c; --hero-ink:#f6f5f2; --hero-ink-2:#a7aab0; --hero-line:#2a2f37;
+  --good:#1f7a4d; --draw:#8a7a1f; --bad:#a33a35;
+  --r:12px;
+  --sans:"Segoe UI",system-ui,-apple-system,"Noto Naskh Arabic","Noto Sans Arabic",
+         Tahoma,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --surface-0:#121211; --surface-1:#1a1a19; --surface-2:#232321;
+    --ink:#f5f4f0; --ink-2:#c3c2b7; --ink-3:#95948b;
+    --line:#32322e; --line-2:#44443f;
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
+    --bar-muted:#403f3b; --pitch-line:#46453f; --pitch-bg:#201f1d;
+    --hero-bg:#0d0f13; --hero-ink:#f6f5f2; --hero-ink-2:#9ea1a8; --hero-line:#242830;
+    --good:#4caf7d; --draw:#c2a93a; --bad:#e06b66;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--surface-0);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+h1,h2,h3{line-height:1.2;margin:0}
+h2{font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em}
+p{margin:0 0 14px}
+a{color:var(--series-1)}
+section{padding:54px 0;border-top:1px solid var(--line)}
+section>.wrap>h2{margin-bottom:6px}
+.lede{color:var(--ink-2);max-width:68ch;margin-bottom:26px}
+
+/* ---------------- barre du haut ---------------- */
+header.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface-0) 88%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:56px}
+.bar .nm{font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.bar nav{display:flex;gap:16px;margin-inline-start:auto;overflow-x:auto;scrollbar-width:none}
+.bar nav::-webkit-scrollbar{display:none}
+.bar nav a{color:var(--ink-2);text-decoration:none;font-size:14px;white-space:nowrap}
+.bar nav a:hover{color:var(--ink)}
+.langs{display:flex;gap:2px;background:var(--surface-2);border-radius:99px;padding:3px;
+  margin-inline-start:auto}
+.bar nav+.langs{margin-inline-start:0}
+.langs button{border:0;background:none;color:var(--ink-3);font:inherit;font-size:13px;
+  font-weight:600;padding:3px 10px;border-radius:99px;cursor:pointer}
+.langs button.on{background:var(--surface-1);color:var(--ink);box-shadow:0 1px 2px #0002}
+
+/* ---------------- hero ---------------- */
+.hero{background:var(--hero-bg);color:var(--hero-ink);padding:44px 0 40px}
+.hero .wrap{display:flex;gap:30px;align-items:center;flex-wrap:wrap}
+.hero .wrap.stack{display:block}
+.photo{width:148px;height:148px;border-radius:50%;object-fit:cover;flex:0 0 auto;
+  background:var(--hero-line);border:2px solid var(--hero-line)}
+.who{flex:1 1 300px;min-width:260px}
+.who h1{font-size:clamp(30px,5.4vw,44px);letter-spacing:-.02em}
+.who .ar-name{font-size:20px;color:var(--hero-ink-2);margin-top:2px}
+.who .role{color:var(--hero-ink-2);margin-top:8px}
+.badge{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:6px 13px;
+  border-radius:99px;background:#1f7a4d22;color:#5fd39a;border:1px solid #1f7a4d66;
+  font-weight:600;font-size:14px}
+.badge i{width:7px;height:7px;border-radius:50%;background:#5fd39a;display:block}
+.badge-note{display:block;font-size:13px;color:var(--hero-ink-2);margin-top:8px}
+/* Les separateurs sont dessines par les cellules (box-shadow) et non par le
+   fond de la grille : quand la derniere rangee n'est pas pleine, la case vide
+   reste du fond du bandeau au lieu d'apparaitre comme un bloc gris. */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;
+  background:var(--hero-bg);border:1px solid var(--hero-line);border-radius:var(--r);
+  overflow:hidden;margin-top:26px}
+.facts div{background:var(--hero-bg);padding:12px 14px;
+  box-shadow:0 0 0 1px var(--hero-line)}
+.facts dt{font-size:12px;color:var(--hero-ink-2);text-transform:uppercase;letter-spacing:.06em}
+.facts dd{margin:3px 0 0;font-weight:600}
+
+/* ---------------- tuiles ---------------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:12px;
+  margin-top:-26px;position:relative;z-index:2}
+.tile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r);
+  padding:16px 18px}
+.tile b{display:block;font-size:40px;line-height:1.05;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums}
+.tile b sup{font-size:.45em;vertical-align:super;font-weight:600;margin-inline-start:1px}
+.tile .lb{font-weight:600;margin-top:4px}
+.tile .sb{font-size:13px;color:var(--ink-3);line-height:1.45;margin-top:2px}
+.tile:first-child b{color:var(--series-1)}
+
+/* ---------------- tableaux ---------------- */
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:start;font-size:12px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-3);font-weight:600;padding:0 10px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.scored td{background:color-mix(in srgb,var(--series-1) 7%,transparent)}
+.rnd{font-variant-numeric:tabular-nums;color:var(--ink-3);width:1%}
+.dt{white-space:nowrap;color:var(--ink-2);font-variant-numeric:tabular-nums;width:1%}
+.opp{font-weight:600}
+.ha{font-weight:400;color:var(--ink-3);font-size:13px}
+.res{display:inline-block;min-width:54px;text-align:center;padding:2px 8px;border-radius:6px;
+  font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
+.res.W{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.res.D{background:color-mix(in srgb,var(--draw) 16%,transparent);color:var(--draw)}
+.res.L{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.gl{width:1%;white-space:nowrap}
+.g{display:inline-block;background:var(--series-1);color:#fff;border-radius:5px;
+  padding:1px 7px;font-size:13px;font-weight:700;margin-inline-end:4px}
+.num{text-align:end;font-variant-numeric:tabular-nums;width:1%;white-space:nowrap}
+.sea,.cl{white-space:nowrap}
+.cl{font-weight:600}
+.scroll{overflow-x:auto}
+
+/* Ilots ecrits de gauche a droite, y compris quand la page passe en arabe.
+   Sans ca l'algorithme bidi retourne « 3-1 » en « 1-3 » (le tiret est un
+   caractere neutre entre deux nombres) : le score affiche devient FAUX, et
+   seul un lecteur arabophone le remarque. Meme chose pour les graphiques,
+   dont les etiquettes latines se collaient au mauvais bord. */
+.res,.g,.sea,.bars,.pitch,.vid span{direction:ltr;unicode-bidi:isolate}
+.bars text{direction:ltr}
+
+/* ---------------- figures ---------------- */
+figure{margin:26px 0 0}
+figcaption,.src{font-size:13px;color:var(--ink-3);margin-top:10px;max-width:62ch}
+.bars{width:100%;height:auto;max-width:520px;display:block}
+.bars text{font-family:var(--sans);font-size:13px;fill:var(--ink-2)}
+.bars .bar-name{text-anchor:end}
+.bars .bar-val{font-weight:700;fill:var(--ink-2);font-variant-numeric:tabular-nums}
+.bars .me{fill:var(--ink);font-weight:700}
+.pitches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;
+  margin-top:24px}
+.pitchbox{background:var(--pitch-bg);border:1px solid var(--line);border-radius:var(--r);
+  padding:12px 12px 8px}
+.pitchbox h3{font-size:14px;display:flex;align-items:center;gap:8px}
+.pitchbox h3 i{width:10px;height:10px;border-radius:50%;display:block}
+.pitchbox .cnt{margin-inline-start:auto;font-size:13px;color:var(--ink-3);font-weight:600;
+  font-variant-numeric:tabular-nums}
+.pitch{width:100%;height:auto;display:block;margin-top:8px}
+.mstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;
+  margin:22px 0 0}
+.mstat{border-inline-start:3px solid var(--series-1);padding:2px 0 2px 14px}
+html[dir="rtl"] .mstat{padding:2px 14px 2px 0}
+.mstat b{font-size:26px;font-variant-numeric:tabular-nums;display:block;line-height:1.15}
+.mstat span{font-size:13px;color:var(--ink-3)}
+.mstat:nth-child(2){border-color:var(--series-2)}
+.mstat:nth-child(3){border-color:var(--series-3)}
+.mstat:nth-child(4){border-color:var(--line-2)}
+.note{background:var(--surface-1);border:1px solid var(--line);border-inline-start:3px solid var(--series-1);
+  border-radius:var(--r);padding:14px 16px;margin-top:22px;font-size:15px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+.note.warn{border-inline-start-color:var(--series-2)}
+
+/* ---------------- video ---------------- */
+.vids{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.vid{display:flex;gap:12px;align-items:center;background:var(--surface-1);
+  border:1px solid var(--line);border-radius:var(--r);padding:10px;text-decoration:none;
+  color:inherit}
+.vid:hover{border-color:var(--line-2)}
+.vid img{width:96px;height:54px;object-fit:cover;border-radius:7px;flex:0 0 auto;
+  background:var(--surface-2)}
+.vid b{display:block;font-size:14px}
+.vid span{display:block;font-size:13px;color:var(--ink-3)}
+.vid .tag{color:var(--series-1);font-weight:600;font-size:12px}
+
+/* ---------------- contact ---------------- */
+.card{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r);
+  padding:22px}
+.card a.mail{font-size:19px;font-weight:700;word-break:break-all}
+footer{padding:26px 0 46px;color:var(--ink-3);font-size:13px;border-top:1px solid var(--line)}
+footer .wrap{max-width:980px}
+
+@media (max-width:640px){
+  .hero{padding:32px 0 34px}
+  .photo{width:104px;height:104px}
+  .tiles{margin-top:16px}
+  .bar nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <span class="nm">Hedy Chaabi</span>
+    <nav>
+      <a href="#season" data-t="nav_season"></a>
+      <a href="#match" data-t="nav_match"></a>
+      <a href="#career" data-t="nav_career"></a>
+      <a href="#video" data-t="nav_video"></a>
+      <a href="#contact" data-t="nav_contact"></a>
+    </nav>
+    <div class="langs" role="group" aria-label="Language">
+      <button data-lang="en">EN</button>
+      <button data-lang="fr">FR</button>
+      <button data-lang="ar">ع</button>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <img class="photo" src="hedy-chaabi.webp" alt="Hedy Chaabi">
+    <div class="who">
+      <h1>Hedy Chaabi</h1>
+      <div class="ar-name" lang="ar" dir="rtl">هيدي شعيبي</div>
+      <div class="role" data-t="role"></div>
+      <span class="badge"><i></i><span data-t="status"></span></span>
+      <span class="badge-note" data-t="status_note"></span>
+    </div>
+  </div>
+  <div class="wrap stack">
+    <dl class="facts">
+      <div><dt data-t="f_age"></dt><dd><span id="v-age"></span> <span data-t="years"></span></dd></div>
+      <div><dt data-t="f_height"></dt><dd dir="ltr"><span id="v-height"></span> cm</dd></div>
+      <div><dt data-t="f_foot"></dt><dd data-t="f_left"></dd></div>
+      <div><dt data-t="f_nat"></dt><dd data-t="f_nat_v"></dd></div>
+      <div><dt data-t="f_last"></dt><dd>Al Jazeera FC<span style="display:block;font-weight:400;font-size:13px;color:var(--hero-ink-2)">Kuwait · 2026</span></dd></div>
+    </dl>
+    <p class="badge-note" style="margin-top:12px" data-t="f_born"></p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tiles">
+    <div class="tile"><b id="v-goals"></b>
+      <div class="lb" data-t="t_goals"></div><div class="sb" data-t="t_goals_s"></div></div>
+    <div class="tile"><b id="v-rank-club"></b>
+      <div class="lb" data-t="t_club"></div><div class="sb" data-t="t_club_s"></div></div>
+    <div class="tile"><b id="v-rank-div"></b>
+      <div class="lb" data-t="t_div"></div><div class="sb" data-t="t_div_s"></div></div>
+    <div class="tile"><b id="v-rank-team"></b>
+      <div class="lb" data-t="t_team"></div><div class="sb" data-t="t_team_s"></div></div>
+  </div>
+</div>
+
+<section id="season">
+  <div class="wrap">
+    <h2 data-t="s_season"></h2>
+    <p class="lede" data-t="season_intro"></p>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th data-t="th_round"></th><th data-t="th_date"></th>
+          <th data-t="th_opp"></th><th data-t="th_score"></th><th data-t="th_his"></th>
+        </tr></thead>
+        <tbody><tr><td class="rnd">12</td><td class="dt" data-date="2026-02-05"></td><td class="opp">Al Sahel SC <span class="ha" data-t="home"></span></td><td><span class="res W">3&ndash;1</span></td><td class="gl"></td></tr><tr class="scored"><td class="rnd">13</td><td class="dt" data-date="2026-02-20"></td><td class="opp">Yarmouk SC <span class="ha" data-t="home"></span></td><td><span class="res D">3&ndash;3</span></td><td class="gl"><span class="g">53′</span></td></tr><tr><td class="rnd">14</td><td class="dt" data-date="2026-07-25"></td><td class="opp">Al Sulaibikhat FC <span class="ha" data-t="home"></span></td><td><span class="res D">1&ndash;1</span></td><td class="gl"></td></tr><tr><td class="rnd">15</td><td class="dt" data-date="2026-07-29"></td><td class="opp">Burgan SC <span class="ha" data-t="home"></span></td><td><span class="res W">2&ndash;0</span></td><td class="gl"></td></tr><tr class="scored"><td class="rnd">16</td><td class="dt" data-date="2026-08-02"></td><td class="opp">Sporty FC <span class="ha" data-t="away"></span></td><td><span class="res W">3&ndash;0</span></td><td class="gl"><span class="g">66′</span></td></tr><tr class="scored"><td class="rnd">17</td><td class="dt" data-date="2026-08-06"></td><td class="opp">Al-Shamiya FC <span class="ha" data-t="home"></span></td><td><span class="res W">5&ndash;0</span></td><td class="gl"><span class="g">45′</span></td></tr><tr><td class="rnd">18</td><td class="dt" data-date="2026-08-10"></td><td class="opp">Khaitan SC <span class="ha" data-t="home"></span></td><td><span class="res D">2&ndash;2</span></td><td class="gl"></td></tr><tr><td class="rnd">19</td><td class="dt" data-date="2026-08-14"></td><td class="opp">Al Sahel SC <span class="ha" data-t="away"></span></td><td><span class="res L">0&ndash;2</span></td><td class="gl"></td></tr><tr><td class="rnd">20</td><td class="dt" data-date="2026-08-17"></td><td class="opp">Yarmouk SC <span class="ha" data-t="away"></span></td><td><span class="res W">2&ndash;0</span></td><td class="gl"></td></tr><tr><td class="rnd">21</td><td class="dt" data-date="2026-08-20"></td><td class="opp">Al Sulaibikhat FC <span class="ha" data-t="away"></span></td><td><span class="res L">0&ndash;1</span></td><td class="gl"></td></tr></tbody>
+      </table>
+    </div>
+    <p class="src" data-t="gap_note"></p>
+    <figure>
+      <h3 style="font-size:15px;margin-bottom:12px" data-t="scorers_t"></h3>
+      <svg viewBox="0 0 460 240" class="bars" role="img"><text x="142" y="16" class="bar-name">Donovan Ewolo</text><rect x="150" y="0" width="276.0" height="22" rx="3" fill="var(--bar-muted)"><title>Donovan Ewolo : 8</title></rect><text x="433.0" y="16" class="bar-val">8</text><text x="142" y="46" class="bar-name">Isaac James Ogiri</text><rect x="150" y="30" width="172.5" height="22" rx="3" fill="var(--bar-muted)"><title>Isaac James Ogiri : 5</title></rect><text x="329.5" y="46" class="bar-val">5</text><text x="142" y="76" class="bar-name">Marouane Zila</text><rect x="150" y="60" width="138.0" height="22" rx="3" fill="var(--bar-muted)"><title>Marouane Zila : 4</title></rect><text x="295.0" y="76" class="bar-val">4</text><text x="142" y="106" class="bar-name me">Hedy Chaabi</text><rect x="150" y="90" width="138.0" height="22" rx="3" fill="var(--series-1)"><title>Hedy Chaabi : 4</title></rect><text x="295.0" y="106" class="bar-val me">4</text><text x="142" y="136" class="bar-name">Yao Jean Charles O…</text><rect x="150" y="120" width="103.5" height="22" rx="3" fill="var(--bar-muted)"><title>Yao Jean Charles Olivier : 3</title></rect><text x="260.5" y="136" class="bar-val">3</text><text x="142" y="166" class="bar-name">Nando Welter</text><rect x="150" y="150" width="103.5" height="22" rx="3" fill="var(--bar-muted)"><title>Nando Welter : 3</title></rect><text x="260.5" y="166" class="bar-val">3</text><text x="142" y="196" class="bar-name">Fahad Al Rajhi</text><rect x="150" y="180" width="103.5" height="22" rx="3" fill="var(--bar-muted)"><title>Fahad Al Rajhi : 3</title></rect><text x="260.5" y="196" class="bar-val">3</text><text x="142" y="226" class="bar-name">Mobarak Saeed</text><rect x="150" y="210" width="103.5" height="22" rx="3" fill="var(--bar-muted)"><title>Mobarak Saeed : 3</title></rect><text x="260.5" y="226" class="bar-val">3</text></svg>
+      <figcaption data-t="scorers_c"></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="match">
+  <div class="wrap">
+    <h2 data-t="s_match"></h2>
+    <p class="lede" data-t="match_intro"></p>
+    <div class="mstats">
+      <div class="mstat"><b>1</b><span data-t="m_goal"></span></div>
+      <div class="mstat"><b>2</b><span data-t="m_assists"></span></div>
+      <div class="mstat"><b id="v-drib"></b><span data-t="m_drib"></span></div>
+      <div class="mstat"><b id="v-actions"></b><span data-t="m_actions"></span></div>
+    </div>
+    <div class="pitches">
+      <div class="pitchbox">
+        <h3><i style="background:var(--series-1)"></i><span data-t="p_passes"></span>
+          <span class="cnt">23</span></h3><svg viewBox="-1 -1 107 78" class="pitch" role="img"><rect x="0" y="0" width="105" height="68" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><line x1="52.5" y1="0" x2="52.5" y2="68" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><circle cx="52.5" cy="34" r="9.15" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="0" y="13.85" width="16.5" height="40.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="88.5" y="13.85" width="16.5" height="40.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="0" y="24.85" width="5.5" height="18.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="99.5" y="24.85" width="5.5" height="18.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><circle cx="68.25" cy="40.12" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="84.00" cy="59.84" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="74.55" cy="64.60" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="57.75" cy="42.84" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="66.15" cy="65.96" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="46.20" cy="39.44" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="59.85" cy="64.60" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="64.05" cy="53.72" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="64.05" cy="63.24" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="56.70" cy="40.12" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="58.80" cy="8.16" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="47.25" cy="57.12" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="57.75" cy="25.84" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="102.90" cy="48.96" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="72.45" cy="44.88" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="82.95" cy="56.44" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="85.05" cy="45.56" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="71.40" cy="66.64" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="43.05" cy="64.60" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="46.20" cy="46.92" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="87.15" cy="55.08" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="78.75" cy="56.44" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="48.30" cy="48.96" r="1.6" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width=".45"/><path d="M49.5 73 h6 m-2 -2 l2 2 l-2 2" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/></svg></div>
+      <div class="pitchbox">
+        <h3><i style="background:var(--series-3)"></i><span data-t="p_drib"></span>
+          <span class="cnt">7</span></h3><svg viewBox="-1 -1 107 78" class="pitch" role="img"><rect x="0" y="0" width="105" height="68" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><line x1="52.5" y1="0" x2="52.5" y2="68" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><circle cx="52.5" cy="34" r="9.15" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="0" y="13.85" width="16.5" height="40.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="88.5" y="13.85" width="16.5" height="40.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="0" y="24.85" width="5.5" height="18.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="99.5" y="24.85" width="5.5" height="18.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><circle cx="100.80" cy="59.16" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="53.55" cy="31.96" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="84.00" cy="30.60" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="55.65" cy="27.88" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="52.50" cy="66.64" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="47.25" cy="59.84" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="85.05" cy="53.04" r="1.6" fill="var(--series-3)" stroke="var(--surface-1)" stroke-width=".45"/><path d="M49.5 73 h6 m-2 -2 l2 2 l-2 2" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/></svg></div>
+      <div class="pitchbox">
+        <h3><i style="background:var(--series-2)"></i><span data-t="p_shots"></span>
+          <span class="cnt">5</span></h3><svg viewBox="-1 -1 107 78" class="pitch" role="img"><rect x="0" y="0" width="105" height="68" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><line x1="52.5" y1="0" x2="52.5" y2="68" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><circle cx="52.5" cy="34" r="9.15" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="0" y="13.85" width="16.5" height="40.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="88.5" y="13.85" width="16.5" height="40.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="0" y="24.85" width="5.5" height="18.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><rect x="99.5" y="24.85" width="5.5" height="18.3" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/><circle cx="90.30" cy="33.32" r="1.6" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="90.30" cy="23.12" r="1.6" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="100.80" cy="20.40" r="1.6" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="87.15" cy="49.64" r="1.6" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width=".45"/><circle cx="84.00" cy="44.20" r="1.6" fill="var(--series-2)" stroke="var(--surface-1)" stroke-width=".45"/><path d="M49.5 73 h6 m-2 -2 l2 2 l-2 2" fill="none" stroke="var(--pitch-line)" stroke-width=".5"/></svg></div>
+    </div>
+    <p class="src" data-t="p_cap"></p>
+    <div class="note" data-t="zones_b"></div>
+    <div class="note warn" data-t="caveat"></div>
+  </div>
+</section>
+
+<section id="career">
+  <div class="wrap">
+    <h2 data-t="s_career"></h2>
+    <p class="lede" data-t="career_intro"></p>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th data-t="th_season"></th><th data-t="th_club"></th><th data-t="th_comp"></th>
+          <th class="num" data-t="th_apps"></th><th class="num" data-t="th_g"></th>
+        </tr></thead>
+        <tbody><tr><td class="sea">2025/26</td><td class="cl">Al Jazeera FC</td><td class="cp" data-tj="{&quot;en&quot;: &quot;Zain First Division&quot;, &quot;fr&quot;: &quot;Zain First Division&quot;, &quot;ar&quot;: &quot;دوري زين للدرجة الأولى&quot;}"></td><td class="num">&mdash;</td><td class="num">4</td></tr><tr><td class="sea">2024/25</td><td class="cl">CR Belouizdad</td><td class="cp" data-tj="{&quot;en&quot;: &quot;Ligue 1 (Algeria)&quot;, &quot;fr&quot;: &quot;Ligue 1 (Algérie)&quot;, &quot;ar&quot;: &quot;الرابطة المحترفة الأولى (الجزائر)&quot;}"></td><td class="num">19</td><td class="num">0</td></tr><tr><td class="sea">2024/25</td><td class="cl">CR Belouizdad</td><td class="cp" data-tj="{&quot;en&quot;: &quot;Algerian Cup&quot;, &quot;fr&quot;: &quot;Coupe d&#39;Algérie&quot;, &quot;ar&quot;: &quot;كأس الجزائر&quot;}"></td><td class="num">1</td><td class="num">1</td></tr><tr><td class="sea">2024/25</td><td class="cl">CR Belouizdad</td><td class="cp" data-tj="{&quot;en&quot;: &quot;CAF Champions League&quot;, &quot;fr&quot;: &quot;Ligue des champions CAF&quot;, &quot;ar&quot;: &quot;دوري أبطال أفريقيا&quot;}"></td><td class="num">3</td><td class="num">0</td></tr><tr><td class="sea">2023/24</td><td class="cl">Francs Borains</td><td class="cp" data-tj="{&quot;en&quot;: &quot;Challenger Pro League (2nd tier)&quot;, &quot;fr&quot;: &quot;Challenger Pro League (D2)&quot;, &quot;ar&quot;: &quot;تشالنجر برو ليغ (الدرجة الثانية)&quot;}"></td><td class="num">25</td><td class="num">2</td></tr><tr><td class="sea">2023/24</td><td class="cl">Francs Borains</td><td class="cp" data-tj="{&quot;en&quot;: &quot;Belgian Cup&quot;, &quot;fr&quot;: &quot;Coupe de Belgique&quot;, &quot;ar&quot;: &quot;كأس بلجيكا&quot;}"></td><td class="num">1</td><td class="num">0</td></tr><tr><td class="sea">2016-2023</td><td class="cl">Francs Borains</td><td class="cp" data-tj="{&quot;en&quot;: &quot;3rd tier → National 1 → promotion&quot;, &quot;fr&quot;: &quot;D3 → Nationale 1 → montée&quot;, &quot;ar&quot;: &quot;الدرجة الثالثة ← الوطنية الأولى ← صعود&quot;}"></td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr></tbody>
+      </table>
+    </div>
+    <p class="src" data-t="career_note"></p>
+  </div>
+</section>
+
+<section id="video">
+  <div class="wrap">
+    <h2 data-t="s_video"></h2>
+    <p class="lede" data-t="video_intro"></p>
+    <div class="vids"><a class="vid" href="https://www.youtube.com/watch?v=iCsZfTOaguk" target="_blank" rel="noopener"><img src="https://img.youtube.com/vi/iCsZfTOaguk/mqdefault.jpg" alt="" loading="lazy"><div><b>Al Jazeera 3-1 Al Sahel</b><span data-date="2026-02-05"></span></div></a><a class="vid" href="https://www.youtube.com/watch?v=JoN2MlJqePY" target="_blank" rel="noopener"><img src="https://img.youtube.com/vi/JoN2MlJqePY/mqdefault.jpg" alt="" loading="lazy"><div><b>Al Jazeera 3-3 Yarmouk</b><span data-date="2026-02-20"></span><span class="tag" data-t="tagged_here"></span></div></a></div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <h2 data-t="s_contact"></h2>
+    <div class="card">
+      <p data-t="contact_b"></p>
+      <a class="mail" href="mailto:harisgarrigos692@gmail.com">harisgarrigos692@gmail.com</a>
+      <p style="margin:6px 0 0;font-size:14px;color:var(--ink-3)">
+        Haris Garrigos &middot; <span data-t="contact_role"></span></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <b data-t="sources"></b><br>
+    <span data-t="src_body"></span>
+  </div>
+</footer>
+
+<script>
+const T = {"nav_profile": {"en": "Profile", "fr": "Profil", "ar": "البطاقة"}, "nav_season": {"en": "Kuwait 2025/26", "fr": "Koweït 2025/26", "ar": "الكويت 2025/26"}, "nav_match": {"en": "Match analysis", "fr": "Analyse d'un match", "ar": "تحليل مباراة"}, "nav_career": {"en": "Career", "fr": "Carrière", "ar": "المسيرة"}, "nav_video": {"en": "Video", "fr": "Vidéo", "ar": "الفيديو"}, "nav_contact": {"en": "Contact", "fr": "Contact", "ar": "للتواصل"}, "role": {"en": "Attacking midfielder · Right winger", "fr": "Milieu offensif · Ailier droit", "ar": "صانع ألعاب · جناح أيمن"}, "status": {"en": "Free agent", "fr": "Libre de tout contrat", "ar": "لاعب حر"}, "status_note": {"en": "Available since the end of the Kuwaiti season, 20 August 2026", "fr": "Disponible depuis la fin de la saison koweïtienne, le 20 août 2026", "ar": "متاح منذ نهاية الموسم الكويتي في 20 أغسطس 2026"}, "f_age": {"en": "Age", "fr": "Âge", "ar": "العمر"}, "f_born": {"en": "Born 30 Oct 1995, Nice (France)", "fr": "Né le 30/10/1995 à Nice (France)", "ar": "من مواليد 30 أكتوبر 1995، نيس (فرنسا)"}, "f_height": {"en": "Height", "fr": "Taille", "ar": "الطول"}, "f_foot": {"en": "Strong foot", "fr": "Pied fort", "ar": "القدم المفضلة"}, "f_left": {"en": "Left", "fr": "Gauche", "ar": "اليسرى"}, "f_nat": {"en": "Nationality", "fr": "Nationalité", "ar": "الجنسية"}, "f_nat_v": {"en": "Algeria", "fr": "Algérie", "ar": "الجزائر"}, "f_last": {"en": "Last club", "fr": "Dernier club", "ar": "آخر نادٍ"}, "years": {"en": "years", "fr": "ans", "ar": "سنة"}, "t_goals": {"en": "Goals in Kuwait", "fr": "Buts au Koweït", "ar": "أهداف في الكويت"}, "t_goals_s": {"en": "in his 10 eligible league rounds", "fr": "sur ses 10 journées de championnat", "ar": "في جولاته العشر بالدوري"}, "t_club": {"en": "Top scorer at his club", "fr": "Buteur de son club", "ar": "هدّاف ناديه"}, "t_club_s": {"en": "in a 32-man squad, having played half the season", "fr": "dans un effectif de 32, en une demi-saison", "ar": "ضمن قائمة من 32 لاعبًا، في نصف موسم"}, "t_div": {"en": "Among the division's scorers", "fr": "Au classement des buteurs", "ar": "في ترتيب هدّافي الدوري"}, "t_div_s": {"en": "of %(nb)d players who scored this season; %(tie)d of them are level on four goals", "fr": "sur %(nb)d joueurs ayant marqué cette saison ; %(tie)d sont à égalité à quatre buts", "ar": "من أصل %(nb)d لاعبًا سجّلوا هذا الموسم، و%(tie)d منهم متعادلون عند أربعة أهداف"}, "t_team": {"en": "His club's finish", "fr": "Classement de son club", "ar": "ترتيب ناديه"}, "t_team_s": {"en": "of 8 · 41 goals scored, 2nd best attack", "fr": "sur 8 · 41 buts marqués, 2e attaque", "ar": "من 8 · 41 هدفًا، ثاني أقوى هجوم"}, "ord_1": {"en": "st", "fr": "er", "ar": ""}, "ord_2": {"en": "nd", "fr": "e", "ar": ""}, "ord_3": {"en": "rd", "fr": "e", "ar": ""}, "ord_n": {"en": "th", "fr": "e", "ar": ""}, "s_season": {"en": "The 2025/26 season in Kuwait", "fr": "La saison 2025/26 au Koweït", "ar": "موسم 2025/26 في الكويت"}, "season_intro": {"en": "He signed for Al Jazeera FC on 26 January 2026, from CR Belouizdad. That makes him eligible from round 12 onwards: ten league rounds, plus the Emir Cup tie against Al Kuwait on 15 February. He scored four goals in that window &mdash; the club's third-highest tally of the whole season, reached in half of it.", "fr": "Il signe à Al Jazeera FC le 26 janvier 2026, en provenance du CR Belouizdad, ce qui le rend qualifiable à partir de la 12e journée : dix journées de championnat, plus le match de Coupe de l'Émir contre Al Kuwait le 15 février. Il marque quatre buts sur cette fenêtre &mdash; le troisième total du club sur toute la saison, atteint en une moitié.", "ar": "انضم إلى نادي الجزيرة في 26 يناير 2026 قادمًا من شباب بلوزداد، ليكون مؤهلاً اعتبارًا من الجولة 12: عشر جولات في الدوري، إضافة إلى مباراة كأس الأمير أمام الكويت في 15 فبراير. سجّل في هذه الفترة أربعة أهداف &mdash; ثالث أفضل حصيلة في النادي طوال الموسم، بلغها في نصفه."}, "th_round": {"en": "Round", "fr": "Journée", "ar": "الجولة"}, "th_date": {"en": "Date", "fr": "Date", "ar": "التاريخ"}, "th_opp": {"en": "Opponent", "fr": "Adversaire", "ar": "الخصم"}, "th_score": {"en": "Score", "fr": "Score", "ar": "النتيجة"}, "th_his": {"en": "His goals", "fr": "Ses buts", "ar": "أهدافه"}, "home": {"en": "home", "fr": "domicile", "ar": "أرضه"}, "away": {"en": "away", "fr": "extérieur", "ar": "خارج أرضه"}, "scorers_t": {"en": "Goals scored for Al Jazeera FC in 2025/26", "fr": "Les buteurs d'Al Jazeera FC en 2025/26", "ar": "هدّافو نادي الجزيرة في 2025/26"}, "scorers_c": {"en": "Whole-season totals. He appears from round 12 only.", "fr": "Totaux sur la saison entière. Il n'apparaît qu'à partir de la 12e journée.", "ar": "إجماليات الموسم كاملًا. هو لم يشارك إلا اعتبارًا من الجولة 12."}, "gap_note": {"en": "The league's official scorer table credits him with four goals; the public match timelines date only three of them. The gap is shown, not smoothed over.", "fr": "Le classement officiel des buteurs lui attribue quatre buts ; les chronologies publiques n'en datent que trois. L'écart est affiché, pas lissé.", "ar": "يمنحه جدول الهدّافين الرسمي أربعة أهداف، بينما لا توثّق التسلسلات الزمنية المنشورة سوى ثلاثة. الفارق معروض كما هو، دون تجميل."}, "s_match": {"en": "One match, tagged action by action", "fr": "Un match, codé action par action", "ar": "مباراة واحدة، موثّقة لقطة بلقطة"}, "match_intro": {"en": "This division publishes a single number per player: the goal. Everything below comes from manual video tagging of one full match &mdash; Al Jazeera 3-3 Yarmouk, round 13, 20 February 2026 &mdash; done by his analyst, 48 actions logged. He scored one goal and assisted the other two: he was involved in all three.", "fr": "Cette division ne publie qu'un seul chiffre par joueur : le but. Tout ce qui suit vient du codage vidéo manuel d'un match entier &mdash; Al Jazeera 3-3 Yarmouk, 13e journée, le 20 février 2026 &mdash; réalisé par son analyste, 48 actions relevées. Il marque un but et délivre les deux autres passes décisives : il touche aux trois buts.", "ar": "لا ينشر هذا الدوري سوى رقم واحد لكل لاعب: الهدف. وكل ما يلي مصدره توثيق يدوي بالفيديو لمباراة كاملة &mdash; الجزيرة 3-3 اليرموك، الجولة 13، 20 فبراير 2026 &mdash; أنجزه محلّله، بواقع 48 لقطة. سجّل هدفًا وصنع الهدفين الآخرين: ساهم في الأهداف الثلاثة كلها."}, "m_goal": {"en": "goal", "fr": "but", "ar": "هدف"}, "m_assists": {"en": "assists", "fr": "passes décisives", "ar": "تمريرتان حاسمتان"}, "m_actions": {"en": "actions logged", "fr": "actions relevées", "ar": "لقطة موثّقة"}, "m_drib": {"en": "dribbles, all completed", "fr": "dribbles, tous réussis", "ar": "مراوغات، جميعها ناجحة"}, "p_passes": {"en": "Passes", "fr": "Passes", "ar": "التمريرات"}, "p_drib": {"en": "Dribbles", "fr": "Dribbles", "ar": "المراوغات"}, "p_shots": {"en": "Shots", "fr": "Tirs", "ar": "التسديدات"}, "p_cap": {"en": "Attacking left to right. Both halves brought into the same direction of play.", "fr": "Attaque de gauche à droite. Les deux périodes sont ramenées dans le même sens de jeu.", "ar": "الهجوم من اليسار إلى اليمين. تم توحيد اتجاه اللعب في الشوطين."}, "zones_t": {"en": "Where he played", "fr": "Où il a joué", "ar": "أين لعب"}, "zones_b": {"en": "<b>A number 10 who drops in, working the right half-space.</b> %(right)d of his %(n)d actions came down the right and %(mid)d in the middle third &mdash; not a winger holding the touchline. %(final)d actions in the final third, and a goal scored from inside the box.", "fr": "<b>Un n° 10 qui décroche et travaille dans le demi-espace droit.</b> %(right)d de ses %(n)d actions sont du côté droit et %(mid)d dans le tiers médian &mdash; pas un ailier qui reste sur sa ligne. %(final)d actions dans le dernier tiers, et un but marqué de l'intérieur de la surface.", "ar": "<b>صانع ألعاب يتراجع ويعمل في نصف المساحة اليمنى.</b> %(right)d من لقطاته الـ%(n)d جاءت من الجهة اليمنى و%(mid)d في الثلث الأوسط &mdash; لا جناح يلتصق بالخط. %(final)d لقطة في الثلث الأخير، وهدف سجّله من داخل منطقة الجزاء."}, "caveat": {"en": "<b>Read this before the numbers.</b> One match, tagged by hand and selectively: what stands out gets logged, so percentages run high and volumes run low compared with a full provider feed. Counts of rare, salient events &mdash; goals, key passes, dribbles, shots &mdash; are the part that holds. Ten tagged matches would give these axes their meaning; one gives them their shape.", "fr": "<b>À lire avant les chiffres.</b> Un seul match, codé à la main et de façon sélective : on relève ce qu'on remarque, donc les pourcentages sont hauts et les volumes bas face à un relevé fournisseur complet. Ce qui tient, ce sont les comptes d'actions rares et saillantes &mdash; buts, passes clés, dribbles, tirs. Dix matchs codés donneraient du sens à ces axes ; un seul leur donne leur forme.", "ar": "<b>اقرأ هذا قبل الأرقام.</b> مباراة واحدة، وُثّقت يدويًا وبشكل انتقائي: يُسجَّل ما يلفت النظر، لذا تأتي النسب مرتفعة والأحجام منخفضة مقارنةً بتغذية بيانات كاملة من مزوّد. ما يصمد هو عدّ الأحداث النادرة البارزة &mdash; الأهداف والتمريرات الحاسمة والمراوغات والتسديدات. عشر مباريات موثّقة تمنح هذه المحاور معناها؛ ومباراة واحدة تمنحها شكلها."}, "s_career": {"en": "Career", "fr": "Carrière", "ar": "المسيرة"}, "career_intro": {"en": "Trained in France, he built his career in Belgium: he joined Francs Borains in 2016 and went up with them through three divisions, which earned him the nickname of &laquo;&nbsp;the man of the three promotions&nbsp;&raquo; at the club. Then the Challenger Pro League, then Algeria &mdash; league, cup and CAF Champions League with CR Belouizdad &mdash; then Kuwait.", "fr": "Formé en France, il fait sa carrière en Belgique : arrivé aux Francs Borains en 2016, il monte avec eux sur trois divisions, ce qui lui vaut le surnom de &laquo;&nbsp;l'homme aux trois montées&nbsp;&raquo; au club. Puis la Challenger Pro League, puis l'Algérie &mdash; championnat, coupe et Ligue des champions CAF avec le CR Belouizdad &mdash; puis le Koweït.", "ar": "تكوّن في فرنسا وبنى مسيرته في بلجيكا: التحق بفرانك بوران عام 2016 وصعد معه ثلاث درجات، وهو ما أكسبه في النادي لقب &laquo;&nbsp;صاحب الصعودات الثلاثة&nbsp;&raquo;. ثم تشالنجر برو ليغ، ثم الجزائر &mdash; الدوري والكأس ودوري أبطال أفريقيا مع شباب بلوزداد &mdash; ثم الكويت."}, "th_season": {"en": "Season", "fr": "Saison", "ar": "الموسم"}, "th_club": {"en": "Club", "fr": "Club", "ar": "النادي"}, "th_comp": {"en": "Competition", "fr": "Compétition", "ar": "المسابقة"}, "th_apps": {"en": "Apps", "fr": "Matchs", "ar": "مباريات"}, "th_g": {"en": "Goals", "fr": "Buts", "ar": "أهداف"}, "career_note": {"en": "Appearance counts before 2023/24 are not consistently published; the rows above are given only where a public source states them.", "fr": "Les nombres de matchs avant 2023/24 ne sont pas publiés de façon cohérente ; les lignes ci-dessus ne sont remplies que là où une source publique les donne.", "ar": "أعداد المباريات قبل موسم 2023/24 غير منشورة بشكل متّسق؛ ولم تُملأ الخانات أعلاه إلا حيث يذكرها مصدر علني."}, "s_video": {"en": "Full matches on video", "fr": "Matchs entiers en vidéo", "ar": "مباريات كاملة بالفيديو"}, "video_intro": {"en": "The Kuwaiti federation published two of his matches in full. Both are complete broadcasts, not highlight packages.", "fr": "La fédération koweïtienne a publié deux de ses matchs en entier. Ce sont des diffusions complètes, pas des résumés.", "ar": "نشر الاتحاد الكويتي مباراتين له كاملتين. وهما بثّان كاملان، لا ملخّصات."}, "watch": {"en": "Watch", "fr": "Voir", "ar": "المشاهدة"}, "tagged_here": {"en": "the match tagged above", "fr": "le match codé ci-dessus", "ar": "المباراة الموثّقة أعلاه"}, "s_contact": {"en": "Contact", "fr": "Contact", "ar": "للتواصل"}, "contact_b": {"en": "For the full dataset behind this page, the tagged match file, or to arrange a conversation with the player:", "fr": "Pour les données complètes derrière cette page, le fichier du match codé, ou pour organiser un échange avec le joueur :", "ar": "للحصول على البيانات الكاملة وراء هذه الصفحة، أو ملف المباراة الموثّقة، أو لترتيب حديث مع اللاعب:"}, "contact_role": {"en": "Performance analyst", "fr": "Analyste de la performance", "ar": "محلل أداء"}, "sources": {"en": "Sources", "fr": "Sources", "ar": "المصادر"}, "src_body": {"en": "Kuwaiti season, squad and scorer tables: Sofascore. Career before Kuwait: Soccerway, FotMob and Royal Francs Borains. Match analysis: manual video tagging, %(d)s. Page generated on %(gen)s.", "fr": "Saison koweïtienne, effectif et classement des buteurs : Sofascore. Carrière avant le Koweït : Soccerway, FotMob et le Royal Francs Borains. Analyse de match : codage vidéo manuel, %(d)s. Page générée le %(gen)s.", "ar": "الموسم الكويتي والقائمة وجداول الهدّافين: Sofascore. المسيرة قبل الكويت: Soccerway وFotMob ونادي فرانك بوران. تحليل المباراة: توثيق يدوي بالفيديو، %(d)s. أُنشئت الصفحة في %(gen)s."}}, D = {"age": 30, "height": 180, "goals": 4, "rangClub": 3, "rangDiv": 12, "nButeurs": 81, "exaequo": 6, "rangEquipe": 4, "zones": {"right": 27, "mid": 26, "final": 21, "n": 48}, "nDrib": 7, "ordClub": {"en": "rd", "fr": "e", "ar": ""}, "ordDiv": {"en": "th", "fr": "e", "ar": ""}, "ordTeam": {"en": "th", "fr": "e", "ar": ""}, "dateMatch": "20/02/2026", "gen": "23/09/2026"};
+const LANGS = ["en","fr","ar"];
+const VALS = Object.assign({}, D.zones, {
+  nb: D.nButeurs, tie: D.exaequo, d: D.dateMatch, gen: D.gen
+});
+
+/* Les dates sont ecrites par le navigateur dans la langue lue : "5 Feb 2026",
+   "5 fevr. 2026", "5 fevrier 2026" en arabe. On force les chiffres latins en
+   arabe (-u-nu-latn) : le reste de la page compte en chiffres latins, et une
+   page qui melange 5 et un cinq arabe se lit comme deux pages. */
+const LOCALE = {en:"en-GB", fr:"fr-FR", ar:"ar-KW-u-nu-latn"};
+function dates(lang){
+  document.querySelectorAll("[data-date]").forEach(el => {
+    const d = new Date(el.dataset.date + "T12:00:00");
+    el.textContent = d.toLocaleDateString(LOCALE[lang],
+      {day:"numeric", month:"short", year:"numeric"});
+  });
+}
+
+function fmt(s){ return s.replace(/%\((\w+)\)[ds]/g, (_, k) => VALS[k]); }
+
+function apply(lang){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang === "ar") ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const s = T[el.dataset.t];
+    if (s) el.innerHTML = fmt(s[lang]);
+  });
+  document.querySelectorAll("[data-tj]").forEach(el => {
+    el.textContent = JSON.parse(el.dataset.tj)[lang];
+  });
+  dates(lang);
+  const sup = o => (o[lang] ? "<sup>" + o[lang] + "</sup>" : "");
+  document.getElementById("v-age").textContent = D.age;
+  document.getElementById("v-height").textContent = D.height;
+  document.getElementById("v-goals").textContent = D.goals;
+  document.getElementById("v-drib").textContent = D.nDrib + "/" + D.nDrib;
+  document.getElementById("v-actions").textContent = D.zones.n;
+  document.getElementById("v-rank-club").innerHTML = D.rangClub + sup(D.ordClub);
+  document.getElementById("v-rank-div").innerHTML  = D.rangDiv  + sup(D.ordDiv);
+  document.getElementById("v-rank-team").innerHTML = D.rangEquipe + sup(D.ordTeam);
+  document.querySelectorAll(".langs button").forEach(b =>
+    b.classList.toggle("on", b.dataset.lang === lang));
+  try { localStorage.setItem("hc-lang", lang); } catch (e) {}
+  /* La langue vit dans l'URL : un lien ?lang=ar s'ouvre en arabe chez le
+     destinataire, quel que soit son navigateur. */
+  const u = new URL(location.href);
+  u.searchParams.set("lang", lang);
+  history.replaceState(null, "", u);
+}
+
+document.querySelectorAll(".langs button").forEach(b =>
+  b.addEventListener("click", () => apply(b.dataset.lang)));
+
+let start = new URLSearchParams(location.search).get("lang") || "";
+if (!LANGS.includes(start)) {
+  try { start = localStorage.getItem("hc-lang") || ""; } catch (e) {}
+}
+if (!LANGS.includes(start)) {
+  const nav = (navigator.language || "en").slice(0, 2);
+  start = LANGS.includes(nav) ? nav : "en";
+}
+apply(start);
+</script>
+</body>
+</html>

@@ -1,0 +1,530 @@
+# -*- coding: utf-8 -*-
+"""Genere index.html : la page de presentation de Hedy Chaabi.
+
+    python construire.py [chemin/du/codage.xml]
+
+Aucun chiffre n'est saisi a la main. Tout vient de :
+  - football-stats-scraper/data/*.json  : la saison koweitienne (fournisseur)
+  - le XML du tagger                    : le releve video du match J13
+  - SOURCES_CARRIERE ci-dessous         : les releves publics hors Koweit,
+    recopies avec leur source, parce qu'aucun scraper ne les couvre.
+
+La page est trilingue (en / fr / ar). Les textes vivent dans TRAD, un seul
+dictionnaire : une chaine oubliee dans une langue se voit tout de suite.
+"""
+import io, json, os, shutil, sys, datetime
+import xml.etree.ElementTree as ET
+
+ICI = os.path.dirname(os.path.abspath(__file__))
+SCRAPER = r"C:/Users/Haris/football-stats-scraper/data"
+XML_DEFAUT = r"C:/Users/Haris/Downloads/2026-09-17-al-jazeera-adversaire-codage (1).xml"
+JOUEUR_ID = 1396246
+
+CONTACT_MAIL = "harisgarrigos692@gmail.com"
+
+# Les deux seuls matchs entiers en ligne (releve du 17/09/2026).
+VIDEOS = [
+    {"round": 12, "id": "iCsZfTOaguk", "date": "2026-02-05",
+     "match": "Al Jazeera 3-1 Al Sahel"},
+    {"round": 13, "id": "JoN2MlJqePY", "date": "2026-02-20",
+     "match": "Al Jazeera 3-3 Yarmouk"},
+]
+
+# Hors Koweit, aucune source ne se scrape : on recopie, avec la source en face.
+SOURCES_CARRIERE = [
+    {"saison": "2025/26", "club": "Al Jazeera FC", "pays": "KW",
+     "comp": {"en": "Zain First Division", "fr": "Zain First Division",
+              "ar": "دوري زين للدرجة الأولى"},
+     "matchs": None, "buts": 4, "src": "sofascore"},
+    {"saison": "2024/25", "club": "CR Belouizdad", "pays": "DZ",
+     "comp": {"en": "Ligue 1 (Algeria)", "fr": "Ligue 1 (Algérie)",
+              "ar": "الرابطة المحترفة الأولى (الجزائر)"},
+     "matchs": 19, "buts": 0, "src": "soccerway"},
+    {"saison": "2024/25", "club": "CR Belouizdad", "pays": "DZ",
+     "comp": {"en": "Algerian Cup", "fr": "Coupe d'Algérie",
+              "ar": "كأس الجزائر"},
+     "matchs": 1, "buts": 1, "src": "soccerway"},
+    {"saison": "2024/25", "club": "CR Belouizdad", "pays": "DZ",
+     "comp": {"en": "CAF Champions League", "fr": "Ligue des champions CAF",
+              "ar": "دوري أبطال أفريقيا"},
+     "matchs": 3, "buts": 0, "src": "soccerway"},
+    {"saison": "2023/24", "club": "Francs Borains", "pays": "BE",
+     "comp": {"en": "Challenger Pro League (2nd tier)",
+              "fr": "Challenger Pro League (D2)",
+              "ar": "تشالنجر برو ليغ (الدرجة الثانية)"},
+     "matchs": 25, "buts": 2, "src": "soccerway"},
+    {"saison": "2023/24", "club": "Francs Borains", "pays": "BE",
+     "comp": {"en": "Belgian Cup", "fr": "Coupe de Belgique",
+              "ar": "كأس بلجيكا"},
+     "matchs": 1, "buts": 0, "src": "soccerway"},
+    {"saison": "2016-2023", "club": "Francs Borains", "pays": "BE",
+     "comp": {"en": "3rd tier → National 1 → promotion",
+              "fr": "D3 → Nationale 1 → montée",
+              "ar": "الدرجة الثالثة ← الوطنية الأولى ← صعود"},
+     "matchs": None, "buts": None, "src": "club"},
+]
+
+PALETTE = {  # validee par valide_palette.py, clair et sombre
+    "bleu":  ("#2a78d6", "#3987e5"),
+    "orange": ("#eb6834", "#d95926"),
+    "aqua":  ("#1baf7a", "#199e70"),
+}
+
+
+def html_attr(t):
+    """Echappe une valeur d'attribut HTML. Sans ca, l'apostrophe de
+    « Coupe d'Algerie » ferme l'attribut et casse tout le script de la page."""
+    return (t.replace("&", "&amp;").replace('"', "&quot;")
+             .replace("'", "&#39;").replace("<", "&lt;"))
+
+
+# --------------------------------------------------------------- lecture
+def charge(nom):
+    return json.load(io.open(os.path.join(SCRAPER, nom), encoding="utf-8"))
+
+
+def lis_xml(chemin):
+    """Le releve du tagger, MT1 retournee de 180 degres.
+
+    Al Jazeera est configuree en equipe A, donc le tagger la suppose attaquant
+    vers x=100 sur tout le match. En MT1 elle attaque vers x=0 (ses tirs sont a
+    x = 4, 14, 14, 17) : c'est la MT1 qu'on retourne, pas la MT2, parce que les
+    equipes changent de camp a la pause.
+    """
+    rows = []
+    for inst in ET.parse(chemin).getroot().findall(".//instance"):
+        d = {"code": inst.findtext("code"),
+             "t": float(inst.findtext("start")) + 5.0}
+        for l in inst.findall("label"):
+            d[l.findtext("group")] = l.findtext("text")
+        x, y = (float(v) for v in d["Zone"].split("/"))
+        d["x"], d["y"] = (100 - x, 100 - y) if d["Période"] == "MT1" else (x, y)
+        rows.append(d)
+    rows.sort(key=lambda r: (r["Période"], r["t"]))
+    return rows
+
+
+def contexte():
+    joueurs = charge("players.json")["players"]
+    fiche = joueurs[str(JOUEUR_ID)]
+    buteurs = charge("scorers.json")["scorers"]
+    lui = next(b for b in buteurs if b["id"] == JOUEUR_ID)
+    site = charge("site.json")
+    events = charge("events.json")["events"]
+    squad = charge("squads.json")["teams"]["jazira"]
+
+    arrivee = next(c for c in fiche["career"] if c["to"] == "Al Jazeera FC Kuwait")
+    depuis = arrivee["iso"]
+
+    matchs = [m for m in events
+              if (m["home_key"] == "jazira" or m["away_key"] == "jazira")
+              and m["kickoff_iso"][:10] >= depuis]
+    for m in matchs:
+        dom = m["home_key"] == "jazira"
+        pour, contre = ((m["home_score"], m["away_score"]) if dom
+                        else (m["away_score"], m["home_score"]))
+        m["_dom"] = dom
+        m["_adv"] = m["away"] if dom else m["home"]
+        m["_pour"], m["_contre"] = pour, contre
+        m["_res"] = "W" if pour > contre else ("D" if pour == contre else "L")
+        m["_buts"] = [t["minute"] for t in m["timeline"]
+                      if t["type"] == "goal" and t.get("player") == fiche["name"]]
+
+    club_buteurs = sorted([b for b in buteurs if b["team"] == "jazira"],
+                          key=lambda b: -b["goals"])
+    return {
+        "fiche": fiche, "lui": lui, "matchs": matchs, "squad": squad,
+        "classement": site["standings"],
+        "club": next(r for r in site["standings"] if "Jaz" in r["team"]),
+        "club_buteurs": club_buteurs,
+        "rang_club": 1 + sum(1 for b in club_buteurs if b["goals"] > lui["goals"]),
+        "rang_div": 1 + sum(1 for b in buteurs if b["goals"] > lui["goals"]),
+        "n_buteurs": len(buteurs),
+        "exaequo": sum(1 for b in buteurs if b["goals"] == lui["goals"]),
+        "depuis": depuis,
+    }
+
+
+# ------------------------------------------------------------------ SVG
+def pitch(marques, couleur, w=105.0, h=68.0):
+    """Un terrain vu du dessus, attaque vers la DROITE, une seule couleur.
+
+    Un terrain par type d'action : 48 marques sur une seule carte se
+    recouvrent et l'oeil ne separe plus un tir d'une perte de balle.
+    """
+    S = 'fill="none" stroke="var(--pitch-line)" stroke-width=".5"'
+    lignes = [
+        '<rect x="0" y="0" width="%g" height="%g" %s/>' % (w, h, S),
+        '<line x1="%g" y1="0" x2="%g" y2="%g" %s/>' % (w / 2, w / 2, h, S),
+        '<circle cx="%g" cy="%g" r="9.15" %s/>' % (w / 2, h / 2, S),
+    ]
+    for dx, prof, larg in ((0, 16.5, 40.3), (w - 16.5, 16.5, 40.3),
+                           (0, 5.5, 18.3), (w - 5.5, 5.5, 18.3)):
+        lignes.append('<rect x="%g" y="%g" width="%g" height="%g" %s/>'
+                      % (dx, (h - larg) / 2, prof, larg, S))
+    L, rond = "".join(lignes), ""
+    pts = []
+    for r in marques:
+        cx, cy = r["x"] / 100.0 * w, (100 - r["y"]) / 100.0 * h
+        pts.append('<circle cx="%.2f" cy="%.2f" r="1.6" fill="%s" '
+                   'stroke="var(--surface-1)" stroke-width=".45"/>'
+                   % (cx, cy, couleur))
+    fleche = ('<path d="M%g %g h6 m-2 -2 l2 2 l-2 2" fill="none" '
+              'stroke="var(--pitch-line)" stroke-width=".5"/>') % (w / 2 - 3, h + 5)
+    return ('<svg viewBox="-1 -1 %g %g" class="pitch" role="img">%s%s%s%s</svg>'
+            % (w + 2, h + 10, L, rond, "".join(pts), fleche))
+
+
+def barres_buteurs(club_buteurs, moi):
+    """Les buteurs du club. Une seule serie : pas de legende, valeurs ecrites."""
+    rows = club_buteurs[:8]
+    maxi = max(b["goals"] for b in rows)
+    hl, gap, lab = 22, 8, 150
+    w, h = 460, len(rows) * (hl + gap)
+    out = []
+    for i, b in enumerate(rows):
+        y = i * (hl + gap)
+        lui = b["id"] == moi
+        larg = (w - lab - 34) * b["goals"] / maxi
+        nom = b["name"] if len(b["name"]) <= 19 else b["name"][:18] + "…"
+        out.append('<text x="%d" y="%d" class="bar-name%s">%s</text>'
+                   % (lab - 8, y + hl - 6, " me" if lui else "", nom))
+        out.append('<rect x="%d" y="%d" width="%.1f" height="%d" rx="3" '
+                   'fill="%s"><title>%s : %d</title></rect>'
+                   % (lab, y, larg, hl,
+                      "var(--series-1)" if lui else "var(--bar-muted)",
+                      b["name"], b["goals"]))
+        out.append('<text x="%.1f" y="%d" class="bar-val%s">%d</text>'
+                   % (lab + larg + 7, y + hl - 6, " me" if lui else "", b["goals"]))
+    return ('<svg viewBox="0 0 %d %d" class="bars" role="img">%s</svg>'
+            % (w, h, "".join(out)))
+
+
+# ------------------------------------------------------------ traductions
+TRAD = {
+ "nav_profile": {"en": "Profile", "fr": "Profil", "ar": "البطاقة"},
+ "nav_season": {"en": "Kuwait 2025/26", "fr": "Koweït 2025/26", "ar": "الكويت 2025/26"},
+ "nav_match": {"en": "Match analysis", "fr": "Analyse d'un match", "ar": "تحليل مباراة"},
+ "nav_career": {"en": "Career", "fr": "Carrière", "ar": "المسيرة"},
+ "nav_video": {"en": "Video", "fr": "Vidéo", "ar": "الفيديو"},
+ "nav_contact": {"en": "Contact", "fr": "Contact", "ar": "للتواصل"},
+
+ "role": {"en": "Attacking midfielder · Right winger",
+          "fr": "Milieu offensif · Ailier droit",
+          "ar": "صانع ألعاب · جناح أيمن"},
+ "status": {"en": "Free agent", "fr": "Libre de tout contrat", "ar": "لاعب حر"},
+ "status_note": {"en": "Available since the end of the Kuwaiti season, 20 August 2026",
+                 "fr": "Disponible depuis la fin de la saison koweïtienne, le 20 août 2026",
+                 "ar": "متاح منذ نهاية الموسم الكويتي في 20 أغسطس 2026"},
+ "f_age": {"en": "Age", "fr": "Âge", "ar": "العمر"},
+ "f_born": {"en": "Born 30 Oct 1995, Nice (France)",
+            "fr": "Né le 30/10/1995 à Nice (France)",
+            "ar": "من مواليد 30 أكتوبر 1995، نيس (فرنسا)"},
+ "f_height": {"en": "Height", "fr": "Taille", "ar": "الطول"},
+ "f_foot": {"en": "Strong foot", "fr": "Pied fort", "ar": "القدم المفضلة"},
+ "f_left": {"en": "Left", "fr": "Gauche", "ar": "اليسرى"},
+ "f_nat": {"en": "Nationality", "fr": "Nationalité", "ar": "الجنسية"},
+ "f_nat_v": {"en": "Algeria", "fr": "Algérie", "ar": "الجزائر"},
+ "f_last": {"en": "Last club", "fr": "Dernier club", "ar": "آخر نادٍ"},
+ "years": {"en": "years", "fr": "ans", "ar": "سنة"},
+
+ "t_goals": {"en": "Goals in Kuwait", "fr": "Buts au Koweït", "ar": "أهداف في الكويت"},
+ "t_goals_s": {"en": "in his 10 eligible league rounds",
+               "fr": "sur ses 10 journées de championnat",
+               "ar": "في جولاته العشر بالدوري"},
+ "t_club": {"en": "Top scorer at his club", "fr": "Buteur de son club", "ar": "هدّاف ناديه"},
+ "t_club_s": {"en": "in a 32-man squad, having played half the season",
+              "fr": "dans un effectif de 32, en une demi-saison",
+              "ar": "ضمن قائمة من 32 لاعبًا، في نصف موسم"},
+ "t_div": {"en": "Among the division's scorers",
+           "fr": "Au classement des buteurs",
+           "ar": "في ترتيب هدّافي الدوري"},
+ "t_div_s": {"en": "of %(nb)d players who scored this season; %(tie)d of them are level on four goals",
+             "fr": "sur %(nb)d joueurs ayant marqué cette saison ; %(tie)d sont à égalité à quatre buts",
+             "ar": "من أصل %(nb)d لاعبًا سجّلوا هذا الموسم، و%(tie)d منهم متعادلون عند أربعة أهداف"},
+ "t_team": {"en": "His club's finish", "fr": "Classement de son club", "ar": "ترتيب ناديه"},
+ "t_team_s": {"en": "of 8 · 41 goals scored, 2nd best attack",
+              "fr": "sur 8 · 41 buts marqués, 2e attaque",
+              "ar": "من 8 · 41 هدفًا، ثاني أقوى هجوم"},
+ "ord_1": {"en": "st", "fr": "er", "ar": ""},
+ "ord_2": {"en": "nd", "fr": "e", "ar": ""},
+ "ord_3": {"en": "rd", "fr": "e", "ar": ""},
+ "ord_n": {"en": "th", "fr": "e", "ar": ""},
+
+ "s_season": {"en": "The 2025/26 season in Kuwait",
+              "fr": "La saison 2025/26 au Koweït",
+              "ar": "موسم 2025/26 في الكويت"},
+ "season_intro": {
+   "en": "He signed for Al Jazeera FC on 26 January 2026, from CR Belouizdad. "
+         "That makes him eligible from round 12 onwards: ten league rounds, "
+         "plus the Emir Cup tie against Al Kuwait on 15 February. He scored "
+         "four goals in that window &mdash; the club's third-highest tally of the "
+         "whole season, reached in half of it.",
+   "fr": "Il signe à Al Jazeera FC le 26 janvier 2026, en provenance du "
+         "CR Belouizdad, ce qui le rend qualifiable à partir de la 12e journée : "
+         "dix journées de championnat, plus le match de Coupe de l'Émir contre "
+         "Al Kuwait le 15 février. Il marque quatre buts sur cette fenêtre "
+         "&mdash; le troisième total du club sur toute la saison, atteint en une moitié.",
+   "ar": "انضم إلى نادي الجزيرة في 26 يناير 2026 قادمًا من شباب بلوزداد، "
+         "ليكون مؤهلاً اعتبارًا من الجولة 12: عشر جولات في الدوري، إضافة إلى "
+         "مباراة كأس الأمير أمام الكويت في 15 فبراير. سجّل في هذه الفترة أربعة "
+         "أهداف &mdash; ثالث أفضل حصيلة في النادي طوال الموسم، بلغها في نصفه."},
+ "th_round": {"en": "Round", "fr": "Journée", "ar": "الجولة"},
+ "th_date": {"en": "Date", "fr": "Date", "ar": "التاريخ"},
+ "th_opp": {"en": "Opponent", "fr": "Adversaire", "ar": "الخصم"},
+ "th_score": {"en": "Score", "fr": "Score", "ar": "النتيجة"},
+ "th_his": {"en": "His goals", "fr": "Ses buts", "ar": "أهدافه"},
+ "home": {"en": "home", "fr": "domicile", "ar": "أرضه"},
+ "away": {"en": "away", "fr": "extérieur", "ar": "خارج أرضه"},
+ "scorers_t": {"en": "Goals scored for Al Jazeera FC in 2025/26",
+               "fr": "Les buteurs d'Al Jazeera FC en 2025/26",
+               "ar": "هدّافو نادي الجزيرة في 2025/26"},
+ "scorers_c": {"en": "Whole-season totals. He appears from round 12 only.",
+               "fr": "Totaux sur la saison entière. Il n'apparaît qu'à partir de la 12e journée.",
+               "ar": "إجماليات الموسم كاملًا. هو لم يشارك إلا اعتبارًا من الجولة 12."},
+ "gap_note": {
+   "en": "The league's official scorer table credits him with four goals; the "
+         "public match timelines date only three of them. The gap is shown, not "
+         "smoothed over.",
+   "fr": "Le classement officiel des buteurs lui attribue quatre buts ; les "
+         "chronologies publiques n'en datent que trois. L'écart est affiché, pas lissé.",
+   "ar": "يمنحه جدول الهدّافين الرسمي أربعة أهداف، بينما لا توثّق التسلسلات "
+         "الزمنية المنشورة سوى ثلاثة. الفارق معروض كما هو، دون تجميل."},
+
+ "s_match": {"en": "One match, tagged action by action",
+             "fr": "Un match, codé action par action",
+             "ar": "مباراة واحدة، موثّقة لقطة بلقطة"},
+ "match_intro": {
+   "en": "This division publishes a single number per player: the goal. "
+         "Everything below comes from manual video tagging of one full match "
+         "&mdash; Al Jazeera 3-3 Yarmouk, round 13, 20 February 2026 &mdash; "
+         "done by his analyst, 48 actions logged. He scored one goal and "
+         "assisted the other two: he was involved in all three.",
+   "fr": "Cette division ne publie qu'un seul chiffre par joueur : le but. "
+         "Tout ce qui suit vient du codage vidéo manuel d'un match entier "
+         "&mdash; Al Jazeera 3-3 Yarmouk, 13e journée, le 20 février 2026 &mdash; "
+         "réalisé par son analyste, 48 actions relevées. Il marque un but et "
+         "délivre les deux autres passes décisives : il touche aux trois buts.",
+   "ar": "لا ينشر هذا الدوري سوى رقم واحد لكل لاعب: الهدف. وكل ما يلي مصدره "
+         "توثيق يدوي بالفيديو لمباراة كاملة &mdash; الجزيرة 3-3 اليرموك، الجولة 13، "
+         "20 فبراير 2026 &mdash; أنجزه محلّله، بواقع 48 لقطة. سجّل هدفًا وصنع "
+         "الهدفين الآخرين: ساهم في الأهداف الثلاثة كلها."},
+ "m_goal": {"en": "goal", "fr": "but", "ar": "هدف"},
+ "m_assists": {"en": "assists", "fr": "passes décisives", "ar": "تمريرتان حاسمتان"},
+ "m_actions": {"en": "actions logged", "fr": "actions relevées", "ar": "لقطة موثّقة"},
+ "m_drib": {"en": "dribbles, all completed", "fr": "dribbles, tous réussis",
+            "ar": "مراوغات، جميعها ناجحة"},
+ "p_passes": {"en": "Passes", "fr": "Passes", "ar": "التمريرات"},
+ "p_drib": {"en": "Dribbles", "fr": "Dribbles", "ar": "المراوغات"},
+ "p_shots": {"en": "Shots", "fr": "Tirs", "ar": "التسديدات"},
+ "p_cap": {"en": "Attacking left to right. Both halves brought into the same "
+                 "direction of play.",
+           "fr": "Attaque de gauche à droite. Les deux périodes sont ramenées "
+                 "dans le même sens de jeu.",
+           "ar": "الهجوم من اليسار إلى اليمين. تم توحيد اتجاه اللعب في الشوطين."},
+ "zones_t": {"en": "Where he played", "fr": "Où il a joué", "ar": "أين لعب"},
+ "zones_b": {
+   "en": "<b>A number 10 who drops in, working the right half-space.</b> "
+         "%(right)d of his %(n)d actions came down the right and %(mid)d in the "
+         "middle third &mdash; not a winger holding the touchline. "
+         "%(final)d actions in the final third, and a goal scored from inside the box.",
+   "fr": "<b>Un n° 10 qui décroche et travaille dans le demi-espace droit.</b> "
+         "%(right)d de ses %(n)d actions sont du côté droit et %(mid)d dans le "
+         "tiers médian &mdash; pas un ailier qui reste sur sa ligne. "
+         "%(final)d actions dans le dernier tiers, et un but marqué de l'intérieur de la surface.",
+   "ar": "<b>صانع ألعاب يتراجع ويعمل في نصف المساحة اليمنى.</b> "
+         "%(right)d من لقطاته الـ%(n)d جاءت من الجهة اليمنى و%(mid)d في الثلث "
+         "الأوسط &mdash; لا جناح يلتصق بالخط. "
+         "%(final)d لقطة في الثلث الأخير، وهدف سجّله من داخل منطقة الجزاء."},
+ "caveat": {
+   "en": "<b>Read this before the numbers.</b> One match, tagged by hand and "
+         "selectively: what stands out gets logged, so percentages run high and "
+         "volumes run low compared with a full provider feed. Counts of rare, "
+         "salient events &mdash; goals, key passes, dribbles, shots &mdash; are the "
+         "part that holds. Ten tagged matches would give these axes their meaning; "
+         "one gives them their shape.",
+   "fr": "<b>À lire avant les chiffres.</b> Un seul match, codé à la main et de "
+         "façon sélective : on relève ce qu'on remarque, donc les pourcentages "
+         "sont hauts et les volumes bas face à un relevé fournisseur complet. "
+         "Ce qui tient, ce sont les comptes d'actions rares et saillantes "
+         "&mdash; buts, passes clés, dribbles, tirs. Dix matchs codés donneraient "
+         "du sens à ces axes ; un seul leur donne leur forme.",
+   "ar": "<b>اقرأ هذا قبل الأرقام.</b> مباراة واحدة، وُثّقت يدويًا وبشكل انتقائي: "
+         "يُسجَّل ما يلفت النظر، لذا تأتي النسب مرتفعة والأحجام منخفضة مقارنةً "
+         "بتغذية بيانات كاملة من مزوّد. ما يصمد هو عدّ الأحداث النادرة البارزة "
+         "&mdash; الأهداف والتمريرات الحاسمة والمراوغات والتسديدات. عشر مباريات "
+         "موثّقة تمنح هذه المحاور معناها؛ ومباراة واحدة تمنحها شكلها."},
+
+ "s_career": {"en": "Career", "fr": "Carrière", "ar": "المسيرة"},
+ "career_intro": {
+   "en": "Trained in France, he built his career in Belgium: he joined Francs "
+         "Borains in 2016 and went up with them through three divisions, which "
+         "earned him the nickname of &laquo;&nbsp;the man of the three "
+         "promotions&nbsp;&raquo; at the club. Then the Challenger Pro League, "
+         "then Algeria &mdash; league, cup and CAF Champions League with "
+         "CR Belouizdad &mdash; then Kuwait.",
+   "fr": "Formé en France, il fait sa carrière en Belgique : arrivé aux Francs "
+         "Borains en 2016, il monte avec eux sur trois divisions, ce qui lui vaut "
+         "le surnom de &laquo;&nbsp;l'homme aux trois montées&nbsp;&raquo; au club. "
+         "Puis la Challenger Pro League, puis l'Algérie &mdash; championnat, coupe "
+         "et Ligue des champions CAF avec le CR Belouizdad &mdash; puis le Koweït.",
+   "ar": "تكوّن في فرنسا وبنى مسيرته في بلجيكا: التحق بفرانك بوران عام 2016 وصعد "
+         "معه ثلاث درجات، وهو ما أكسبه في النادي لقب &laquo;&nbsp;صاحب "
+         "الصعودات الثلاثة&nbsp;&raquo;. ثم تشالنجر برو ليغ، ثم الجزائر "
+         "&mdash; الدوري والكأس ودوري أبطال أفريقيا مع شباب بلوزداد &mdash; ثم الكويت."},
+ "th_season": {"en": "Season", "fr": "Saison", "ar": "الموسم"},
+ "th_club": {"en": "Club", "fr": "Club", "ar": "النادي"},
+ "th_comp": {"en": "Competition", "fr": "Compétition", "ar": "المسابقة"},
+ "th_apps": {"en": "Apps", "fr": "Matchs", "ar": "مباريات"},
+ "th_g": {"en": "Goals", "fr": "Buts", "ar": "أهداف"},
+ "career_note": {
+   "en": "Appearance counts before 2023/24 are not consistently published; the "
+         "rows above are given only where a public source states them.",
+   "fr": "Les nombres de matchs avant 2023/24 ne sont pas publiés de façon "
+         "cohérente ; les lignes ci-dessus ne sont remplies que là où une source "
+         "publique les donne.",
+   "ar": "أعداد المباريات قبل موسم 2023/24 غير منشورة بشكل متّسق؛ ولم تُملأ "
+         "الخانات أعلاه إلا حيث يذكرها مصدر علني."},
+
+ "s_video": {"en": "Full matches on video", "fr": "Matchs entiers en vidéo",
+             "ar": "مباريات كاملة بالفيديو"},
+ "video_intro": {
+   "en": "The Kuwaiti federation published two of his matches in full. Both are "
+         "complete broadcasts, not highlight packages.",
+   "fr": "La fédération koweïtienne a publié deux de ses matchs en entier. Ce sont "
+         "des diffusions complètes, pas des résumés.",
+   "ar": "نشر الاتحاد الكويتي مباراتين له كاملتين. وهما بثّان كاملان، لا ملخّصات."},
+ "watch": {"en": "Watch", "fr": "Voir", "ar": "المشاهدة"},
+ "tagged_here": {"en": "the match tagged above", "fr": "le match codé ci-dessus",
+                 "ar": "المباراة الموثّقة أعلاه"},
+
+ "s_contact": {"en": "Contact", "fr": "Contact", "ar": "للتواصل"},
+ "contact_b": {
+   "en": "For the full dataset behind this page, the tagged match file, or to "
+         "arrange a conversation with the player:",
+   "fr": "Pour les données complètes derrière cette page, le fichier du match "
+         "codé, ou pour organiser un échange avec le joueur :",
+   "ar": "للحصول على البيانات الكاملة وراء هذه الصفحة، أو ملف المباراة الموثّقة، "
+         "أو لترتيب حديث مع اللاعب:"},
+ "contact_role": {"en": "Performance analyst", "fr": "Analyste de la performance",
+                  "ar": "محلل أداء"},
+ "sources": {"en": "Sources", "fr": "Sources", "ar": "المصادر"},
+ "src_body": {
+   "en": "Kuwaiti season, squad and scorer tables: Sofascore. Career before "
+         "Kuwait: Soccerway, FotMob and Royal Francs Borains. Match analysis: "
+         "manual video tagging, %(d)s. Page generated on %(gen)s.",
+   "fr": "Saison koweïtienne, effectif et classement des buteurs : Sofascore. "
+         "Carrière avant le Koweït : Soccerway, FotMob et le Royal Francs Borains. "
+         "Analyse de match : codage vidéo manuel, %(d)s. Page générée le %(gen)s.",
+   "ar": "الموسم الكويتي والقائمة وجداول الهدّافين: Sofascore. المسيرة قبل الكويت: "
+         "Soccerway وFotMob ونادي فرانك بوران. تحليل المباراة: توثيق يدوي "
+         "بالفيديو، %(d)s. أُنشئت الصفحة في %(gen)s."},
+}
+
+
+def ordinal(n, lang):
+    if lang != "en":
+        return {"fr": "er" if n == 1 else "e", "ar": ""}[lang]
+    return {1: "st", 2: "nd", 3: "rd"}.get(n if n < 20 else n % 10, "th")
+
+
+# ------------------------------------------------------------------ page
+def construire(xml_path):
+    c = contexte()
+    rows = lis_xml(xml_path)
+    f, lui = c["fiche"], c["lui"]
+
+    n = len(rows)
+    zones = {
+        "right": sum(1 for r in rows if r["y"] < 100 / 3.0),
+        "mid": sum(1 for r in rows if 100 / 3.0 <= r["x"] < 200 / 3.0),
+        "final": sum(1 for r in rows if r["x"] >= 200 / 3.0),
+        "n": n,
+    }
+    drib = [r for r in rows if r["code"] == "Dribble"]
+
+    terrains = {
+        "p_passes": pitch([r for r in rows if r["code"] in ("Passe", "Passe clé")],
+                          "var(--series-1)"),
+        "p_drib": pitch(drib, "var(--series-3)"),
+        "p_shots": pitch([r for r in rows if r["code"] in ("Tir", "But")],
+                         "var(--series-2)"),
+    }
+
+    # ---- tableau des matchs (une seule fois, les libelles sont traduits en JS)
+    lignes = []
+    for m in c["matchs"]:
+        pills = "".join('<span class="g">%d\u2032</span>' % b for b in m["_buts"])
+        lignes.append(
+            '<tr%s><td class="rnd">%d</td><td class="dt" data-date="%s"></td>'
+            '<td class="opp">%s <span class="ha" data-t="%s"></span></td>'
+            '<td><span class="res %s">%d&ndash;%d</span></td>'
+            '<td class="gl">%s</td></tr>'
+            % (' class="scored"' if m["_buts"] else "", m["round"],
+               m["kickoff_iso"][:10], m["_adv"], "home" if m["_dom"] else "away",
+               m["_res"], m["_pour"], m["_contre"], pills))
+    table_matchs = "".join(lignes)
+
+    # ---- tableau de carriere
+    cl = []
+    for r in SOURCES_CARRIERE:
+        cl.append('<tr><td class="sea">%s</td><td class="cl">%s</td>'
+                  '<td class="cp" data-tj="%s"></td>'
+                  '<td class="num">%s</td><td class="num">%s</td></tr>'
+                  % (r["saison"], r["club"],
+                     html_attr(json.dumps(r["comp"], ensure_ascii=False)),
+                     "&mdash;" if r["matchs"] is None else r["matchs"],
+                     "&mdash;" if r["buts"] is None else r["buts"]))
+    table_carriere = "".join(cl)
+
+    # ---- videos
+    vid = []
+    for v in VIDEOS:
+        tag = ('<span class="tag" data-t="tagged_here"></span>'
+               if v["round"] == 13 else "")
+        vid.append(
+            '<a class="vid" href="https://www.youtube.com/watch?v=%s" '
+            'target="_blank" rel="noopener">'
+            '<img src="https://img.youtube.com/vi/%s/mqdefault.jpg" alt="" loading="lazy">'
+            '<div><b>%s</b><span data-date="%s"></span>%s</div></a>'
+            % (v["id"], v["id"], v["match"], v["date"], tag))
+    videos = "".join(vid)
+
+    donnees = {
+        "age": f["age"], "height": f["height"],
+        "goals": lui["goals"],
+        "rangClub": c["rang_club"], "rangDiv": c["rang_div"],
+        "nButeurs": c["n_buteurs"], "exaequo": c["exaequo"], "rangEquipe": c["club"]["rank"],
+        "zones": zones, "nDrib": len(drib),
+        "ordClub": {k: ordinal(c["rang_club"], k) for k in ("en", "fr", "ar")},
+        "ordDiv": {k: ordinal(c["rang_div"], k) for k in ("en", "fr", "ar")},
+        "ordTeam": {k: ordinal(c["club"]["rank"], k) for k in ("en", "fr", "ar")},
+        "dateMatch": "20/02/2026",
+        "gen": datetime.date.today().strftime("%d/%m/%Y"),
+    }
+
+    html = GABARIT.replace("{{T}}", json.dumps(TRAD, ensure_ascii=False))
+    html = html.replace("{{D}}", json.dumps(donnees, ensure_ascii=False))
+    html = html.replace("{{MATCHS}}", table_matchs)
+    html = html.replace("{{CARRIERE}}", table_carriere)
+    html = html.replace("{{BARRES}}", barres_buteurs(c["club_buteurs"], JOUEUR_ID))
+    html = html.replace("{{VIDEOS}}", videos)
+    html = html.replace("{{MAIL}}", CONTACT_MAIL)
+    for k, v in terrains.items():
+        html = html.replace("{{PITCH_%s}}" % k.upper(), v)
+
+    io.open(os.path.join(ICI, "index.html"), "w", encoding="utf-8").write(html)
+
+    src_photo = os.path.join(SCRAPER, "photos", "%d.webp" % JOUEUR_ID)
+    if os.path.exists(src_photo):
+        shutil.copyfile(src_photo, os.path.join(ICI, "hedy-chaabi.webp"))
+
+    print("index.html ecrit : %d actions, %d matchs, %d lignes de carriere"
+          % (n, len(c["matchs"]), len(SOURCES_CARRIERE)))
+    return c, rows
+
+
+GABARIT = io.open(os.path.join(ICI, "gabarit.html"), encoding="utf-8").read()
+
+if __name__ == "__main__":
+    construire(sys.argv[1] if len(sys.argv) > 1 else XML_DEFAUT)
