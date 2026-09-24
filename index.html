@@ -6,26 +6,37 @@
 <title>Hedy Chaabi — Attacking midfielder</title>
 <meta name="description" content="Hedy Chaabi, Algerian attacking midfielder, free agent. Career record, 2025/26 Kuwaiti season and a full match tagged action by action.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
 :root{
   color-scheme: light;
-  --surface-0:#f4f3f0; --surface-1:#fcfcfb; --surface-2:#eceae5;
-  --ink:#121211; --ink-2:#52514e; --ink-3:#7c7b75;
-  --line:#dedcd6; --line-2:#c9c7c0;
+  --surface-0:#f3efe8; --surface-1:#fffdfa; --surface-2:#e8e2d8;
+  --ink:#16140f; --ink-2:#4d4a43; --ink-3:#7a766c;
+  --line:#ddd6c9; --line-2:#c6bdac;
+  --accent:#1d5fc4; --accent-soft:#1d5fc41a;
+  --sh-1:0 1px 2px rgba(22,20,15,.05), 0 2px 8px rgba(22,20,15,.04);
+  --sh-2:0 2px 4px rgba(22,20,15,.06), 0 12px 30px rgba(22,20,15,.10);
   --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a;
   --bar-muted:#cbc9c3; --pitch-line:#c3c1ba; --pitch-bg:#f7f6f3;
-  --hero-bg:#14171c; --hero-ink:#f6f5f2; --hero-ink-2:#a7aab0; --hero-line:#2a2f37;
+  --hero-bg:#101418; --hero-ink:#f7f4ee; --hero-ink-2:#9ea49e; --hero-line:#272d33;
   --good:#1f7a4d; --draw:#8a7a1f; --bad:#a33a35;
   --r:12px;
-  --sans:"Segoe UI",system-ui,-apple-system,"Noto Naskh Arabic","Noto Sans Arabic",
-         Tahoma,Arial,sans-serif;
+  /* Oswald ne porte AUCUN glyphe arabe : en arabe le texte retombe tout seul
+     sur IBM Plex Sans Arabic, sans avoir a tester la langue en CSS. */
+  --sans:"Inter","IBM Plex Sans Arabic","Segoe UI",system-ui,-apple-system,
+         "Noto Naskh Arabic",Tahoma,Arial,sans-serif;
+  --display:"Oswald","IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme: dark;
-    --surface-0:#121211; --surface-1:#1a1a19; --surface-2:#232321;
-    --ink:#f5f4f0; --ink-2:#c3c2b7; --ink-3:#95948b;
-    --line:#32322e; --line-2:#44443f;
+    --surface-0:#111310; --surface-1:#1a1d19; --surface-2:#242720;
+    --ink:#f5f2ea; --ink-2:#c2bfb2; --ink-3:#928e82;
+    --line:#2f332c; --line-2:#43473e;
+    --accent:#5d97f0; --accent-soft:#5d97f01f;
+    --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 2px 6px rgba(0,0,0,.45), 0 16px 34px rgba(0,0,0,.5);
     --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
     --bar-muted:#403f3b; --pitch-line:#46453f; --pitch-bg:#201f1d;
     --hero-bg:#0d0f13; --hero-ink:#f6f5f2; --hero-ink-2:#9ea1a8; --hero-line:#242830;
@@ -35,24 +46,36 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--surface-0);color:var(--ink);font-family:var(--sans);
-  font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
-.wrap{max-width:980px;margin:0 auto;padding:0 16px}
-h1,h2,h3{line-height:1.2;margin:0}
-h2{font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em}
+  font-size:16.5px;line-height:1.62;-webkit-text-size-adjust:100%;
+  font-feature-settings:"cv05","ss01";text-rendering:optimizeLegibility}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{line-height:1.12;margin:0}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(28px,4.2vw,42px);
+  letter-spacing:.004em;text-transform:uppercase}
+/* Un filet sous le titre. POSITIONNE EN ABSOLU, pas en bloc dans le flux :
+   en RTL un bloc de largeur fixe ne se calait ni a gauche ni a droite du titre
+   arabe mais au milieu. `inset-inline-start` ne laisse aucune ambiguite -- a
+   gauche en francais, a droite en arabe. */
+section>.wrap>h2{position:relative;padding-bottom:17px}
+section>.wrap>h2::after{content:"";position:absolute;inset-block-end:0;
+  inset-inline-start:0;width:52px;height:3px;border-radius:2px;background:var(--accent)}
 p{margin:0 0 14px}
-a{color:var(--series-1)}
-section{padding:54px 0;border-top:1px solid var(--line)}
-section>.wrap>h2{margin-bottom:6px}
-.lede{color:var(--ink-2);max-width:68ch;margin-bottom:26px}
+a{color:var(--accent)}
+section{padding:72px 0;border-top:1px solid var(--line)}
+section>.wrap>h2{margin-bottom:8px}
+.lede{color:var(--ink-2);max-width:64ch;margin:18px 0 30px;font-size:17px}
 
 /* ---------------- barre du haut ---------------- */
 header.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--surface-0) 88%,transparent);
   backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.bar .wrap{display:flex;align-items:center;gap:14px;height:56px}
-.bar .nm{font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:62px}
+.bar .nm{font-family:var(--display);font-weight:600;text-transform:uppercase;
+  font-size:19px;letter-spacing:.02em;white-space:nowrap}
 .bar nav{display:flex;gap:16px;margin-inline-start:auto;overflow-x:auto;scrollbar-width:none}
 .bar nav::-webkit-scrollbar{display:none}
-.bar nav a{color:var(--ink-2);text-decoration:none;font-size:14px;white-space:nowrap}
+.bar nav a{color:var(--ink-2);text-decoration:none;font-size:14.5px;font-weight:500;
+  white-space:nowrap;padding:6px 0;border-bottom:2px solid transparent}
+.bar nav a:hover{border-bottom-color:var(--accent)}
 .bar nav a:hover{color:var(--ink)}
 .langs{display:flex;gap:2px;background:var(--surface-2);border-radius:99px;padding:3px;
   margin-inline-start:auto}
@@ -62,49 +85,80 @@ header.bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--s
 .langs button.on{background:var(--surface-1);color:var(--ink);box-shadow:0 1px 2px #0002}
 
 /* ---------------- hero ---------------- */
-.hero{background:var(--hero-bg);color:var(--hero-ink);padding:44px 0 40px}
-.hero .wrap{display:flex;gap:30px;align-items:center;flex-wrap:wrap}
-.hero .wrap.stack{display:block}
-.photo{width:148px;height:148px;border-radius:50%;object-fit:cover;flex:0 0 auto;
-  background:var(--hero-line);border:2px solid var(--hero-line)}
-.who{flex:1 1 300px;min-width:260px}
-.who h1{font-size:clamp(30px,5.4vw,44px);letter-spacing:-.02em}
-.who .ar-name{font-size:20px;color:var(--hero-ink-2);margin-top:2px}
-.who .role{color:var(--hero-ink-2);margin-top:8px}
-.badge{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:6px 13px;
-  border-radius:99px;background:#1f7a4d22;color:#5fd39a;border:1px solid #1f7a4d66;
-  font-weight:600;font-size:14px}
+/* Une lueur derriere la photo : elle donne de la profondeur au bandeau sans
+   image de fond a charger, et elle se place du bon cote en arabe grace a
+   `inset-inline-start`. */
+.hero{background:var(--hero-bg);color:var(--hero-ink);padding:60px 0 68px;
+  position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset-inline-start:-6%;top:-40%;
+  width:60%;height:180%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(29,95,196,.30),transparent 70%)}
+.hgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:44px;align-items:center;position:relative}
+.hid{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.photo{width:168px;height:168px;border-radius:20px;object-fit:cover;
+  object-position:center 18%;flex:0 0 auto;
+  background:var(--hero-line);box-shadow:0 0 0 1px var(--hero-line),0 18px 40px rgba(0,0,0,.45)}
+.who{flex:1 1 260px;min-width:240px}
+.who h1{font-family:var(--display);font-weight:600;text-transform:uppercase;
+  font-size:clamp(34px,5.6vw,58px);letter-spacing:.01em;line-height:1.02}
+/* inline-block : la boite se cale au DEBUT de la ligne (a gauche en francais,
+   a droite en arabe) pendant que le texte reste ecrit de droite a gauche.
+   Sans ca le nom arabe partait tout seul a l'autre bout du bandeau. */
+.who .ar-name{display:inline-block;direction:rtl;font-size:21px;
+  color:var(--hero-ink-2);margin-top:6px}
+.who .role{color:var(--hero-ink-2);margin-top:10px;font-size:17px}
+.badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:8px 16px;
+  border-radius:99px;background:#1f7a4d26;color:#6fdda6;border:1px solid #1f7a4d80;
+  font-weight:600;font-size:14.5px;letter-spacing:.01em}
+.badge i{animation:puls 2.4s ease-in-out infinite}
+@keyframes puls{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.badge i{animation:none}}
 .badge i{width:7px;height:7px;border-radius:50%;background:#5fd39a;display:block}
 .badge-note{display:block;font-size:13px;color:var(--hero-ink-2);margin-top:8px}
 /* Les separateurs sont dessines par les cellules (box-shadow) et non par le
    fond de la grille : quand la derniere rangee n'est pas pleine, la case vide
    reste du fond du bandeau au lieu d'apparaitre comme un bloc gris. */
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;
-  background:var(--hero-bg);border:1px solid var(--hero-line);border-radius:var(--r);
-  overflow:hidden;margin-top:26px}
-.facts div{background:var(--hero-bg);padding:12px 14px;
+/* DEUX colonnes, pas auto-fit : cinq informations se rangent alors en
+   2 + 2 + 1 pleine largeur, sans case vide. En auto-fit le navigateur en met
+   trois et il reste un trou, qui se dessine quand meme et ressemble a un bug. */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:var(--hero-bg);border:1px solid var(--hero-line);border-radius:16px;
+  overflow:hidden;margin-top:0}
+.facts div{background:rgba(255,255,255,.028);padding:14px 16px;
   box-shadow:0 0 0 1px var(--hero-line)}
+/* Cinq informations dans une grille a trois colonnes laissent un TROU : la
+   case vide se dessine quand meme et ressemble a un bug. La derniere prend
+   toute la largeur restante -- et le nom du club cesse de se couper en deux. */
+.facts div:last-child{grid-column:1/-1}
+.hside .badge-note{opacity:.8}
 .facts dt{font-size:12px;color:var(--hero-ink-2);text-transform:uppercase;letter-spacing:.06em}
-.facts dd{margin:3px 0 0;font-weight:600}
+.facts dd{margin:4px 0 0;font-weight:600;font-size:17px}
 
 /* ---------------- tuiles ---------------- */
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:12px;
-  margin-top:-26px;position:relative;z-index:2}
-.tile{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r);
-  padding:16px 18px}
-.tile b{display:block;font-size:40px;line-height:1.05;letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:14px;
+  margin-top:-38px;position:relative;z-index:2}
+/* Les tuiles chevauchent la frontiere sombre/claire : sans ombre portee le
+   chevauchement a l'air d'un accident de mise en page plutot que d'un choix. */
+.tile{background:var(--surface-1);border:1px solid var(--line);border-radius:16px;
+  padding:20px 20px 18px;box-shadow:var(--sh-2);transition:transform .16s ease}
+.tile:hover{transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}.tile:hover{transform:none}}
+.tile b{display:block;font-family:var(--display);font-weight:600;font-size:52px;
+  line-height:1;letter-spacing:.005em;font-variant-numeric:tabular-nums}
 .tile b sup{font-size:.45em;vertical-align:super;font-weight:600;margin-inline-start:1px}
-.tile .lb{font-weight:600;margin-top:4px}
-.tile .sb{font-size:13px;color:var(--ink-3);line-height:1.45;margin-top:2px}
-.tile:first-child b{color:var(--series-1)}
+.tile .lb{font-weight:600;margin-top:8px;font-size:15.5px}
+.tile .sb{font-size:13.5px;color:var(--ink-3);line-height:1.45;margin-top:4px}
+.tile:first-child b{color:var(--accent)}
 
 /* ---------------- tableaux ---------------- */
-table{width:100%;border-collapse:collapse;font-size:15px}
-th{text-align:start;font-size:12px;text-transform:uppercase;letter-spacing:.06em;
-  color:var(--ink-3);font-weight:600;padding:0 10px 8px;border-bottom:1px solid var(--line)}
-td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-tr.scored td{background:color-mix(in srgb,var(--series-1) 7%,transparent)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+tbody tr{transition:background .12s ease}
+tbody tr:hover{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+th{text-align:start;font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--ink-3);font-weight:600;padding:0 10px 10px;border-bottom:1px solid var(--line-2)}
+td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr.scored td{background:color-mix(in srgb,var(--accent) 8%,transparent)}
 .rnd{font-variant-numeric:tabular-nums;color:var(--ink-3);width:1%}
 .dt{white-space:nowrap;color:var(--ink-2);font-variant-numeric:tabular-nums;width:1%}
 .opp{font-weight:600}
@@ -147,7 +201,8 @@ figcaption,.src{font-size:13px;color:var(--ink-3);margin-top:10px;max-width:62ch
 .bars .me{fill:var(--ink);font-weight:700}
 .pitches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;
   margin-top:24px}
-.pitchbox{background:var(--pitch-bg);border:1px solid var(--line);border-radius:var(--r);
+.pitchbox{background:var(--pitch-bg);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--sh-1);
   padding:12px 12px 8px}
 .pitchbox h3{font-size:14px;display:flex;align-items:center;gap:8px}
 .pitchbox h3 i{width:10px;height:10px;border-radius:50%;display:block}
@@ -189,18 +244,29 @@ h3.sub+.lede{margin-bottom:16px}
 footer{padding:26px 0 46px;color:var(--ink-3);font-size:13px;border-top:1px solid var(--line)}
 footer .wrap{max-width:980px}
 
-@media (max-width:640px){
-  .hero{padding:32px 0 34px}
-  .photo{width:104px;height:104px}
-  .tiles{margin-top:16px}
-  .bar nav{display:none}
+/* Le heros passe en UNE colonne bien avant le telephone : a 900 px les deux
+   colonnes se serrent deja et « NATIONALITE » se coupe. Verifie a 500 et
+   760 px, sans debordement horizontal. */
+@media (max-width:900px){
+  .hgrid{grid-template-columns:1fr;gap:30px}
+  .hero{padding:44px 0 52px}
 }
-.zonebox{max-width:620px;margin:26px auto;background:var(--surface-1);
-  border:1px solid var(--line);border-radius:14px;padding:14px 16px 10px}
+@media (max-width:640px){
+  .hero{padding:34px 0 40px}
+  .photo{width:118px;height:118px;border-radius:16px}
+  .hid{gap:18px}
+  .who h1{font-size:clamp(30px,9vw,40px)}
+  .tiles{margin-top:18px}
+  .tile b{font-size:44px}
+  .bar nav{display:none}
+  section{padding:52px 0}
+}
+.zonebox{max-width:660px;margin:30px auto;background:var(--surface-1);
+  border:1px solid var(--line);border-radius:16px;padding:18px 20px 12px;box-shadow:var(--sh-1)}
 .zonebox h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px}
 .zonebox h3 .cnt{margin-left:auto;color:var(--muted);font-weight:500}
 .zonebox .src{margin:8px 0 2px}
-text.zn{font:600 4.6px "Segoe UI",system-ui,sans-serif;fill:var(--ink);
+text.zn{font:600 4.6px var(--sans);fill:var(--ink);
   text-anchor:middle;paint-order:stroke;stroke:var(--surface-1);stroke-width:1.1px}
 </style>
 </head>
@@ -225,17 +291,18 @@ text.zn{font:600 4.6px "Segoe UI",system-ui,sans-serif;fill:var(--ink);
 </header>
 
 <div class="hero">
-  <div class="wrap">
-    <img class="photo" src="hedy-chaabi.webp" alt="Hedy Chaabi">
-    <div class="who">
-      <h1>Hedy Chaabi</h1>
-      <div class="ar-name" lang="ar" dir="rtl">هيدي شعيبي</div>
-      <div class="role" data-t="role"></div>
-      <span class="badge"><i></i><span data-t="status"></span></span>
-      <span class="badge-note" data-t="status_note"></span>
+  <div class="wrap hgrid">
+    <div class="hid">
+      <img class="photo" src="hedy-chaabi.webp" alt="Hedy Chaabi">
+      <div class="who">
+        <h1>Hedy Chaabi</h1>
+        <div class="ar-name" lang="ar" dir="rtl">هيدي شعيبي</div>
+        <div class="role" data-t="role"></div>
+        <span class="badge"><i></i><span data-t="status"></span></span>
+        <span class="badge-note" data-t="status_note"></span>
+      </div>
     </div>
-  </div>
-  <div class="wrap stack">
+    <div class="hside">
     <dl class="facts">
       <div><dt data-t="f_age"></dt><dd><span id="v-age"></span> <span data-t="years"></span></dd></div>
       <div><dt data-t="f_height"></dt><dd dir="ltr"><span id="v-height"></span> cm</dd></div>
@@ -244,6 +311,7 @@ text.zn{font:600 4.6px "Segoe UI",system-ui,sans-serif;fill:var(--ink);
       <div><dt data-t="f_last"></dt><dd>Al Jazeera FC<span style="display:block;font-weight:400;font-size:13px;color:var(--hero-ink-2)">Kuwait · 2026</span></dd></div>
     </dl>
     <p class="badge-note" style="margin-top:12px" data-t="f_born"></p>
+    </div>
   </div>
 </div>
 
