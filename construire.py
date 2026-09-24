@@ -12,7 +12,7 @@ Aucun chiffre n'est saisi a la main. Tout vient de :
 La page est trilingue (en / fr / ar). Les textes vivent dans TRAD, un seul
 dictionnaire : une chaine oubliee dans une langue se voit tout de suite.
 """
-import io, json, os, shutil, sys, datetime
+import csv, io, json, math, os, shutil, sys, datetime
 import xml.etree.ElementTree as ET
 
 ICI = os.path.dirname(os.path.abspath(__file__))
@@ -205,6 +205,79 @@ def pitch(marques, couleur, w=105.0, h=68.0):
             % (w + 2, h + 10, L, rond, "".join(pts), fleche))
 
 
+def fleches(passes, w=105.0, h=68.0):
+    """Les passes en fleches : progressives en couleur, les autres en gris.
+
+    DEFINITION reprise a l'identique de `hedy-rapport/passes_progressives.py`,
+    elle-meme validee contre un chiffre publie (44 progressives sur 107 sur le
+    rapport Kazma-Al-Shabab). On ne change pas de definition d'un joueur a
+    l'autre, sinon les chiffres ne se comparent plus.
+
+    Les coordonnees arrivent DEJA dans le sens d'attaque : Al Jazeera attaque
+    vers x=0 en MT1 dans le repere du tagger, la MT1 est donc retournee avant
+    tout calcul. La colonne `progression_m` du CSV est fausse pour cette raison
+    et n'est jamais lue.
+    """
+    S = 'fill="none" stroke="var(--pitch-line)" stroke-width=".5"'
+    L = ['<rect x="0" y="0" width="%g" height="%g" %s/>' % (w, h, S),
+         '<line x1="%g" y1="0" x2="%g" y2="%g" %s/>' % (w/2, w/2, h, S),
+         '<circle cx="%g" cy="%g" r="9.15" %s/>' % (w/2, h/2, S)]
+    for dx, prof, larg in ((0, 16.5, 40.3), (w-16.5, 16.5, 40.3),
+                           (0, 5.5, 18.3), (w-5.5, 5.5, 18.3)):
+        L.append('<rect x="%g" y="%g" width="%g" height="%g" %s/>'
+                 % (dx, (h-larg)/2, prof, larg, S))
+    defs = ('<defs>'
+            '<marker id="fp" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4.5"'
+            ' markerHeight="4.5" orient="auto"><path d="M0 0 L8 4 L0 8 z"'
+            ' fill="var(--series-1)"/></marker>'
+            '<marker id="fa" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="4"'
+            ' markerHeight="4" orient="auto"><path d="M0 0 L8 4 L0 8 z"'
+            ' fill="var(--bar-muted)"/></marker></defs>')
+    out = []
+    for p in sorted(passes, key=lambda p: p["prog"]):   # les bleues au-dessus
+        x1, y1 = p["x"]/100.0*w, (100-p["y"])/100.0*h
+        x2, y2 = p["x2"]/100.0*w, (100-p["y2"])/100.0*h
+        c = "var(--series-1)" if p["prog"] else "var(--bar-muted)"
+        out.append('<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" stroke="%s" '
+                   'stroke-width="%.1f" stroke-linecap="round" '
+                   'marker-end="url(#%s)"/>'
+                   % (x1, y1, x2, y2, c, 1.1 if p["prog"] else .7,
+                      "fp" if p["prog"] else "fa"))
+        out.append('<circle cx="%.2f" cy="%.2f" r="1.2" fill="%s" '
+                   'stroke="var(--surface-1)" stroke-width=".4"/>' % (x1, y1, c))
+    fleche = ('<path d="M%g %g h6 m-2 -2 l2 2 l-2 2" fill="none" '
+              'stroke="var(--pitch-line)" stroke-width=".5"/>') % (w/2-3, h+5)
+    return ('<svg viewBox="-1 -1 %g %g" class="pitch" role="img">%s%s%s%s</svg>'
+            % (w+2, h+10, defs, "".join(L), "".join(out), fleche))
+
+
+def lis_passes(chemin):
+    """Les passes avec un point d'arrivee, mesurees et classees."""
+    LONG, LARG, BUT, SEUIL = 105.0, 68.0, (100.0, 50.0), 10.0
+    VECTEURS = ("Passe", "Passe clé", "Passe cle", "Centre")
+    out = []
+    for r in csv.DictReader(io.open(chemin, encoding="utf-8-sig")):
+        if r.get("action") not in VECTEURS:
+            continue
+        try:
+            x, y = float(r["x"]), float(r["y"])
+            x2, y2 = float(r["x2"]), float(r["y2"])
+        except (TypeError, ValueError):
+            continue
+        # MT1 : Al Jazeera attaque vers x=0 dans le tagger, on retourne
+        if r.get("periode") == "1":
+            x, y, x2, y2 = 100-x, 100-y, 100-x2, 100-y2
+        a0, b0 = x/100.0*LONG, y/100.0*LARG
+        a1, b1 = x2/100.0*LONG, y2/100.0*LARG
+        gx, gy = BUT[0]/100.0*LONG, BUT[1]/100.0*LARG
+        prof = a1 - a0
+        gain = math.hypot(gx-a0, gy-b0) - math.hypot(gx-a1, gy-b1)
+        out.append({"x": x, "y": y, "x2": x2, "y2": y2,
+                    "prog": prof > 0 and max(prof, gain) >= SEUIL,
+                    "gain": max(prof, gain)})
+    return out
+
+
 def barres_buteurs(club_buteurs, moi):
     """Les buteurs du club. Une seule serie : pas de legende, valeurs ecrites."""
     rows = club_buteurs[:8]
@@ -345,6 +418,20 @@ TRAD = {
  "m_drib": {"en": "dribbles, all completed", "fr": "dribbles, tous réussis",
             "ar": "مراوغات، جميعها ناجحة"},
  "p_passes": {"en": "Passes", "fr": "Passes", "ar": "التمريرات"},
+ "p_prog": {"en": "Progressive passes", "fr": "Passes progressives",
+            "ar": "التمريرات التقدمية"},
+ "prog_cap": {
+   "en": "Progressive = played forward AND gaining at least 10 m, either in "
+         "depth or in distance to goal. First half only — arrows show "
+         "where each pass started and ended.",
+   "fr": "Progressive = jouée vers l’avant ET au moins 10 m gagnés, en "
+         "profondeur ou en distance au but. Première mi-temps seulement — "
+         "les flèches donnent le départ et l’arrivée de chaque passe.",
+   "ar": "التمريرة التقدمية: تُلعب إلى الأمام وتكسب 10 أمتار على الأقل، عمقاً "
+         "أو اقتراباً من المرمى. الشوط الأول فقط — تُظهر الأسهم نقطة "
+         "الانطلاق ونقطة الوصول."},
+ "m_prog": {"en": "progressive passes", "fr": "passes progressives",
+            "ar": "تمريرات تقدمية"},
  "p_drib": {"en": "Dribbles", "fr": "Dribbles", "ar": "المراوغات"},
  "p_shots": {"en": "Shots", "fr": "Tirs", "ar": "التسديدات"},
  "p_cap": {"en": "Attacking left to right. Both halves brought into the same "
@@ -512,12 +599,19 @@ def construire(xml_path):
     }
     drib = [r for r in rows if r["code"] == "Dribble"]
 
+    # Les passes PROGRESSIVES demandent le point d'ARRIVEE, que le XML de
+    # codage ne transporte pas (un seul point par action). D'ou le CSV du
+    # tagger, qui porte x2/y2. Premiere mi-temps seulement : c'est ce qui a
+    # ete releve.
+    pas = lis_passes(os.path.join(ICI, "donnees", "j13_actions_mt1.csv"))
+    n_prog = sum(1 for p in pas if p["prog"])
     terrains = {
         "p_passes": pitch([r for r in rows if r["code"] in ("Passe", "Passe clé")],
                           "var(--series-1)"),
         "p_drib": pitch(drib, "var(--series-3)"),
         "p_shots": pitch([r for r in rows if r["code"] in ("Tir", "But")],
                          "var(--series-2)"),
+        "p_prog": fleches(pas),
     }
 
     # ---- tableau des matchs (une seule fois, les libelles sont traduits en JS)
@@ -590,6 +684,8 @@ def construire(xml_path):
 
     html = GABARIT.replace("{{T}}", json.dumps(TRAD, ensure_ascii=False))
     html = html.replace("{{D}}", json.dumps(donnees, ensure_ascii=False))
+    html = html.replace("{{N_PROG}}", str(n_prog))
+    html = html.replace("{{N_PAS}}", str(len(pas)))
     html = html.replace("{{MATCHS}}", table_matchs)
     html = html.replace("{{CARRIERE}}", table_carriere)
     html = html.replace("{{BARRES}}", barres_buteurs(c["club_buteurs"], JOUEUR_ID))
@@ -607,6 +703,7 @@ def construire(xml_path):
 
     print("index.html ecrit : %d actions, %d matchs, %d lignes de carriere"
           % (n, len(c["matchs"]), len(SOURCES_CARRIERE)))
+    print("  passes mesurees : %d, dont %d progressives" % (len(pas), n_prog))
     return c, rows
 
 

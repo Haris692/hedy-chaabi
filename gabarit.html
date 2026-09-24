@@ -284,6 +284,7 @@ footer .wrap{max-width:980px}
       <div class="mstat"><b>2</b><span data-t="m_assists"></span></div>
       <div class="mstat"><b id="v-drib"></b><span data-t="m_drib"></span></div>
       <div class="mstat"><b id="v-actions"></b><span data-t="m_actions"></span></div>
+      <div class="mstat"><b>{{N_PROG}}</b><span data-t="m_prog"></span></div>
     </div>
     <div class="pitches">
       <div class="pitchbox">
@@ -295,7 +296,11 @@ footer .wrap{max-width:980px}
       <div class="pitchbox">
         <h3><i style="background:var(--series-2)"></i><span data-t="p_shots"></span>
           <span class="cnt">5</span></h3>{{PITCH_P_SHOTS}}</div>
+      <div class="pitchbox">
+        <h3><i style="background:var(--series-1)"></i><span data-t="p_prog"></span>
+          <span class="cnt">{{N_PROG}} / {{N_PAS}}</span></h3>{{PITCH_P_PROG}}</div>
     </div>
+    <p class="src" data-t="prog_cap"></p>
     <p class="src" data-t="p_cap"></p>
     <div class="note" data-t="zones_b"></div>
     <div class="note warn" data-t="caveat"></div>

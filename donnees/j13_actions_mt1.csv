@@ -1,0 +1,15 @@
+﻿id,date,competition,equipe_a,equipe_b,periode,temps_video_s,temps_match_s,minute,seconde,equipe,cote,numero,joueur,action,issue,x,y,x_att,y_att,x2,y2,x2_att,y2_att,progression_m,note
+1,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,351,351,5,51,AL Jazeera,A,95,Hedy CHAABI,Passe clé,,36.4,57.5,36.4,57.5,13.4,58.8,13.4,58.8,-24.2,
+2,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,741,741,12,21,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,17.6,85.5,17.6,85.5,15.8,79.3,15.8,79.3,-1.9,
+3,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,744,744,12,24,AL Jazeera,A,95,Hedy CHAABI,Centre,reussi,4.8,84.3,4.8,84.3,,,,,,centre contré
+4,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,768,768,12,48,AL Jazeera,A,95,Hedy CHAABI,Corner,,0.3,99.2,0.3,99.2,,,,,,
+5,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,810,810,13,30,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,19.5,88.6,19.5,88.6,14.3,81.5,14.3,81.5,-5.5,
+6,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,912,912,15,12,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,46.1,63,46.1,63,42.6,52.8,42.6,52.8,-3.7,
+7,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,1962,1962,32,42,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,39.5,90.8,39.5,90.8,38.3,73.7,38.3,73.7,-1.3,
+8,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2286,2286,38,6,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,44.1,44.4,44.1,44.4,44.2,34,44.2,34,0.1,
+9,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2475,2475,41,15,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,54.5,55.2,54.5,55.2,62,55.8,62,55.8,7.9,
+10,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2628,2628,43,48,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,41.9,86.5,41.9,86.5,21,93.2,21,93.2,-21.9,
+11,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2655,2655,44,15,AL Jazeera,A,95,Hedy CHAABI,Passe,rate,38.4,81.2,38.4,81.2,28.7,80.7,28.7,80.7,-10.2,
+12,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2778,2778,46,18,AL Jazeera,A,95,Hedy CHAABI,Passe,reussi,37.9,95.2,37.9,95.2,18.1,97,18.1,97,-20.8,
+13,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2841,2841,47,21,AL Jazeera,A,95,Hedy CHAABI,Coup franc,,17.6,67.3,17.6,67.3,,,,,,devié par le mur 
+14,2026-02-20,Zain First Division,AL Jazeera,Yarmouk SC,1,2859,2859,47,39,AL Jazeera,A,95,Hedy CHAABI,Corner,,0.5,99.1,0.5,99.1,,,,,,
