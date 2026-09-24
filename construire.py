@@ -251,7 +251,18 @@ def fleches(passes, w=105.0, h=68.0):
             % (w+2, h+10, defs, "".join(L), "".join(out), fleche))
 
 
-def carte_zones(marques, cols=5, rangs=3, w=105.0, h=68.0):
+def lis_positions(chemin):
+    """Positions relevees sur la video, une par ligne."""
+    out = []
+    for r in csv.DictReader(io.open(chemin, encoding="utf-8-sig")):
+        try:
+            out.append({"x": float(r["x"]), "y": float(r["y"])})
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def carte_zones(marques, video=(), cols=5, rangs=3, w=105.0, h=68.0):
     # NOM : `zones` est deja une variable locale de construire(), qui la
     # masquerait -- Python ne signale rien, l'appel echoue a l'execution.
     """Carte de chaleur en cases chiffrees, pas en nuage flou.
@@ -278,7 +289,10 @@ def carte_zones(marques, cols=5, rangs=3, w=105.0, h=68.0):
         grille[g][c] += 1
     maxi = max((v for l in grille for v in l), default=1) or 1
     cw, ch = w / cols, h / rangs
-    out = []
+    # TROIS COUCHES, dans cet ordre : les cases, puis les anneaux video, puis
+    # les NOMBRES. Dessines apres les anneaux, les chiffres restent lisibles la
+    # ou les points se concentrent -- c'est justement la qu'il y en a le plus.
+    out, chiffres = [], []
     for g in range(rangs):
         for c in range(cols):
             n = grille[g][c]
@@ -287,8 +301,8 @@ def carte_zones(marques, cols=5, rangs=3, w=105.0, h=68.0):
                        'fill="var(--series-1)" fill-opacity="%.3f"/>'
                        % (x, y, cw, ch, .07 + .68 * n / maxi))
             if n:
-                out.append('<text x="%.2f" y="%.2f" class="zn">%d</text>'
-                           % (x + cw/2, y + ch/2 + 2.2, n))
+                chiffres.append('<text x="%.2f" y="%.2f" class="zn">%d</text>'
+                                % (x + cw/2, y + ch/2 + 2.2, n))
     L = ['<rect x="0" y="0" width="%g" height="%g" %s/>' % (w, h, S),
          '<line x1="%g" y1="0" x2="%g" y2="%g" %s/>' % (w/2, w/2, h, S),
          '<circle cx="%g" cy="%g" r="9.15" %s/>' % (w/2, h/2, S)]
@@ -296,6 +310,20 @@ def carte_zones(marques, cols=5, rangs=3, w=105.0, h=68.0):
                            (0, 5.5, 18.3), (w-5.5, 5.5, 18.3)):
         L.append('<rect x="%g" y="%g" width="%g" height="%g" %s/>'
                  % (dx, (h-larg)/2, prof, larg, S))
+    # LES POINTS VIDEO, en surimpression et non fondus dans le comptage.
+    # Ils sont SURS sur l'identite -- chacun vient d'une image ou le detecteur
+    # a lu le numero 95 -- mais BIAISES sur la repartition : 82 des 85 sont
+    # dans le dernier tiers, parce qu'on ne le detecte que sur les plans
+    # resserres pres d'un but. Les fondre dans les cases ferait passer les
+    # 21 actions du dernier tiers a plus de 100 sur 133 et contredirait le
+    # releve manuel sur la meme carte. Ils apportent autre chose : les moments
+    # SANS ballon, que le releve ne contient pas.
+    for v in video:
+        out.append('<circle cx="%.2f" cy="%.2f" r="1.0" fill="none" '
+                   'stroke="var(--ink)" stroke-width=".45" opacity=".5"/>'
+                   % (v["x"]/100.0*w, (100-v["y"])/100.0*h))
+    out += chiffres
+
     mx = sum(r["x"] for r in marques) / max(len(marques), 1)
     my = sum(r["y"] for r in marques) / max(len(marques), 1)
     croix = ('<circle cx="%.2f" cy="%.2f" r="2.4" fill="var(--surface-1)" '
@@ -489,6 +517,29 @@ TRAD = {
  "m_prog": {"en": "progressive passes", "fr": "passes progressives",
             "ar": "تمريرات تقدمية"},
  "p_zones": {"en": "Where he acts", "fr": "Où il agit", "ar": "أين يتحرك"},
+ "zones_leg": {
+   "en": "%d actions coded by hand · %d positions read off the video",
+   "fr": "%d actions codées à la main · %d positions relevées sur la vidéo",
+   "ar": "%d فعل مُرمَّز يدوياً · %d موضع مقروء من الفيديو"},
+ "zones_vid": {
+   "en": "The rings are positions measured on the video. Each one comes from a "
+         "frame where the detector actually READ the number 95 — identity "
+         "is not in doubt. They add moments OFF the ball, which hand coding "
+         "does not contain. They cluster high up the pitch because the camera, "
+         "and the detector, follow the ball: they are certain about WHO, not "
+         "representative of WHERE. They are drawn separately and never added "
+         "to the cell counts.",
+   "fr": "Les anneaux sont des positions mesurées sur la vidéo. Chacune vient "
+         "d’une image où le détecteur a réellement LU le numéro 95 — "
+         "l’identité n’est pas en doute. Elles ajoutent des moments "
+         "SANS ballon, que le codage manuel ne contient pas. Elles se "
+         "concentrent haut parce que la caméra, et le détecteur, suivent le "
+         "ballon : elles sont sûres sur le QUI, pas représentatives du OÙ. "
+         "Elles sont dessinées à part et jamais ajoutées au compte des cases.",
+   "ar": "الحلقات مواضع مقيسة من الفيديو، كل واحدة من لقطة قرأ فيها النظام الرقم "
+         "95 فعلياً — الهوية ليست موضع شك. تضيف لحظات بدون كرة لا يحتويها "
+         "الترميز اليدوي. تتجمع في العمق لأن الكاميرا والنظام يتبعان الكرة: "
+         "مؤكدة في «مَن» لا ممثّلة في «أين». تُرسم منفصلة ولا تُضاف إلى الأرقام."},
  "zones_cap": {
    "en": "Each cell counts his actions. Rows are the three channels — "
          "they add up to the 27 / 16 / 5 quoted below. The ring marks the "
@@ -674,6 +725,7 @@ def construire(xml_path):
     # ete releve.
     pas = lis_passes(os.path.join(ICI, "donnees", "j13_actions_mt1.csv"))
     n_prog = sum(1 for p in pas if p["prog"])
+    vid = lis_positions(os.path.join(ICI, "donnees", "j13_positions_video.csv"))
     terrains = {
         "p_passes": pitch([r for r in rows if r["code"] in ("Passe", "Passe clé")],
                           "var(--series-1)"),
@@ -681,7 +733,7 @@ def construire(xml_path):
         "p_shots": pitch([r for r in rows if r["code"] in ("Tir", "But")],
                          "var(--series-2)"),
         "p_prog": fleches(pas),
-        "p_zones": carte_zones(rows),
+        "p_zones": carte_zones(rows, vid),
     }
 
     # ---- tableau des matchs (une seule fois, les libelles sont traduits en JS)
@@ -744,7 +796,7 @@ def construire(xml_path):
         "goals": lui["goals"],
         "rangClub": c["rang_club"], "rangDiv": c["rang_div"],
         "nButeurs": c["n_buteurs"], "exaequo": c["exaequo"], "rangEquipe": c["club"]["rank"],
-        "zones": zones, "nDrib": len(drib),
+        "zones": zones, "nDrib": len(drib), "nVid": len(vid),
         "ordClub": {k: ordinal(c["rang_club"], k) for k in ("en", "fr", "ar")},
         "ordDiv": {k: ordinal(c["rang_div"], k) for k in ("en", "fr", "ar")},
         "ordTeam": {k: ordinal(c["club"]["rank"], k) for k in ("en", "fr", "ar")},
@@ -755,6 +807,7 @@ def construire(xml_path):
     html = GABARIT.replace("{{T}}", json.dumps(TRAD, ensure_ascii=False))
     html = html.replace("{{D}}", json.dumps(donnees, ensure_ascii=False))
     html = html.replace("{{N_PROG}}", str(n_prog))
+    html = html.replace("{{N_VID}}", str(len(vid)))
     html = html.replace("{{N_PAS}}", str(len(pas)))
     html = html.replace("{{MATCHS}}", table_matchs)
     html = html.replace("{{CARRIERE}}", table_carriere)
@@ -774,6 +827,7 @@ def construire(xml_path):
     print("index.html ecrit : %d actions, %d matchs, %d lignes de carriere"
           % (n, len(c["matchs"]), len(SOURCES_CARRIERE)))
     print("  passes mesurees : %d, dont %d progressives" % (len(pas), n_prog))
+    print("  positions video confirmees par le numero : %d" % len(vid))
     return c, rows
 
 
