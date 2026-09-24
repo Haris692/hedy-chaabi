@@ -195,6 +195,13 @@ footer .wrap{max-width:980px}
   .tiles{margin-top:16px}
   .bar nav{display:none}
 }
+.zonebox{max-width:620px;margin:26px auto;background:var(--surface-1);
+  border:1px solid var(--line);border-radius:14px;padding:14px 16px 10px}
+.zonebox h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px}
+.zonebox h3 .cnt{margin-left:auto;color:var(--muted);font-weight:500}
+.zonebox .src{margin:8px 0 2px}
+text.zn{font:600 4.6px "Segoe UI",system-ui,sans-serif;fill:var(--text);
+  text-anchor:middle;paint-order:stroke;stroke:var(--surface-1);stroke-width:1.1px}
 </style>
 </head>
 <body>
@@ -285,6 +292,11 @@ footer .wrap{max-width:980px}
       <div class="mstat"><b id="v-drib"></b><span data-t="m_drib"></span></div>
       <div class="mstat"><b id="v-actions"></b><span data-t="m_actions"></span></div>
       <div class="mstat"><b>{{N_PROG}}</b><span data-t="m_prog"></span></div>
+    </div>
+    <div class="zonebox">
+      <h3><span data-t="p_zones"></span> <span class="cnt" id="v-actions2"></span></h3>
+      {{PITCH_P_ZONES}}
+      <p class="src" data-t="zones_cap"></p>
     </div>
     <div class="pitches">
       <div class="pitchbox">
@@ -401,6 +413,7 @@ function apply(lang){
   document.getElementById("v-goals").textContent = D.goals;
   document.getElementById("v-drib").textContent = D.nDrib + "/" + D.nDrib;
   document.getElementById("v-actions").textContent = D.zones.n;
+  document.getElementById("v-actions2").textContent = D.zones.n;
   document.getElementById("v-rank-club").innerHTML = D.rangClub + sup(D.ordClub);
   document.getElementById("v-rank-div").innerHTML  = D.rangDiv  + sup(D.ordDiv);
   document.getElementById("v-rank-team").innerHTML = D.rangEquipe + sup(D.ordTeam);

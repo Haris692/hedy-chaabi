@@ -251,6 +251,62 @@ def fleches(passes, w=105.0, h=68.0):
             % (w+2, h+10, defs, "".join(L), "".join(out), fleche))
 
 
+def carte_zones(marques, cols=5, rangs=3, w=105.0, h=68.0):
+    # NOM : `zones` est deja une variable locale de construire(), qui la
+    # masquerait -- Python ne signale rien, l'appel echoue a l'execution.
+    """Carte de chaleur en cases chiffrees, pas en nuage flou.
+
+    POURQUOI DES CASES. 48 actions etalees en densite continue donnent une
+    tache qui suggere une precision qu'on n'a pas -- le relevé est selectif,
+    la forme tient, la densite non. Une case porte un NOMBRE : on voit
+    l'intensite et on peut la verifier.
+
+    POURQUOI 5 x 3. Trois rangs, ce sont les trois couloirs deja cites dans le
+    texte de la page (droite / axe / gauche), donc les totaux par rang doivent
+    retomber sur 27 / 16 / 5 -- un controle visible par le lecteur. Cinq
+    colonnes donnent la profondeur sans descendre sous ~3 actions par case,
+    en dessous de quoi on dessinerait du bruit.
+
+    Le repere est celui de `pitch()` : attaque vers la DROITE, et y=0 est le
+    couloir droit, donc en BAS.
+    """
+    S = 'fill="none" stroke="var(--pitch-line)" stroke-width=".5"'
+    grille = [[0]*cols for _ in range(rangs)]
+    for r in marques:
+        c = min(cols-1, max(0, int(r["x"] / 100.0 * cols)))
+        g = min(rangs-1, max(0, int(r["y"] / 100.0 * rangs)))
+        grille[g][c] += 1
+    maxi = max((v for l in grille for v in l), default=1) or 1
+    cw, ch = w / cols, h / rangs
+    out = []
+    for g in range(rangs):
+        for c in range(cols):
+            n = grille[g][c]
+            x, y = c * cw, (rangs - 1 - g) * ch          # y=0 en bas
+            out.append('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" '
+                       'fill="var(--series-1)" fill-opacity="%.3f"/>'
+                       % (x, y, cw, ch, .07 + .68 * n / maxi))
+            if n:
+                out.append('<text x="%.2f" y="%.2f" class="zn">%d</text>'
+                           % (x + cw/2, y + ch/2 + 2.2, n))
+    L = ['<rect x="0" y="0" width="%g" height="%g" %s/>' % (w, h, S),
+         '<line x1="%g" y1="0" x2="%g" y2="%g" %s/>' % (w/2, w/2, h, S),
+         '<circle cx="%g" cy="%g" r="9.15" %s/>' % (w/2, h/2, S)]
+    for dx, prof, larg in ((0, 16.5, 40.3), (w-16.5, 16.5, 40.3),
+                           (0, 5.5, 18.3), (w-5.5, 5.5, 18.3)):
+        L.append('<rect x="%g" y="%g" width="%g" height="%g" %s/>'
+                 % (dx, (h-larg)/2, prof, larg, S))
+    mx = sum(r["x"] for r in marques) / max(len(marques), 1)
+    my = sum(r["y"] for r in marques) / max(len(marques), 1)
+    croix = ('<circle cx="%.2f" cy="%.2f" r="2.4" fill="var(--surface-1)" '
+             'stroke="var(--series-1)" stroke-width="1.4"/>'
+             % (mx/100.0*w, (100-my)/100.0*h))
+    fleche = ('<path d="M%g %g h6 m-2 -2 l2 2 l-2 2" fill="none" '
+              'stroke="var(--pitch-line)" stroke-width=".5"/>') % (w/2-3, h+5)
+    return ('<svg viewBox="-1 -1 %g %g" class="pitch" role="img">%s%s%s%s</svg>'
+            % (w+2, h+10, "".join(out), "".join(L), croix, fleche))
+
+
 def lis_passes(chemin):
     """Les passes avec un point d'arrivee, mesurees et classees."""
     LONG, LARG, BUT, SEUIL = 105.0, 68.0, (100.0, 50.0), 10.0
@@ -432,6 +488,19 @@ TRAD = {
          "الانطلاق ونقطة الوصول."},
  "m_prog": {"en": "progressive passes", "fr": "passes progressives",
             "ar": "تمريرات تقدمية"},
+ "p_zones": {"en": "Where he acts", "fr": "Où il agit", "ar": "أين يتحرك"},
+ "zones_cap": {
+   "en": "Each cell counts his actions. Rows are the three channels — "
+         "they add up to the 27 / 16 / 5 quoted below. The ring marks the "
+         "average position of his actions, not of his presence: time spent "
+         "without the ball is not in here.",
+   "fr": "Chaque case compte ses actions. Les rangs sont les trois couloirs — "
+         "ils retombent sur les 27 / 16 / 5 cités plus bas. L’anneau marque "
+         "la position moyenne de ses ACTIONS, pas de sa présence : le temps "
+         "passé sans ballon n’y figure pas.",
+   "ar": "كل خانة تُحصي أفعاله. الصفوف هي الممرات الثلاثة — مجموعها 27 / 16 / 5 "
+         "المذكورة أدناه. الحلقة تُشير إلى متوسط موضع أفعاله لا حضوره: الوقت "
+         "المقضي دون كرة غير محسوب."},
  "p_drib": {"en": "Dribbles", "fr": "Dribbles", "ar": "المراوغات"},
  "p_shots": {"en": "Shots", "fr": "Tirs", "ar": "التسديدات"},
  "p_cap": {"en": "Attacking left to right. Both halves brought into the same "
@@ -612,6 +681,7 @@ def construire(xml_path):
         "p_shots": pitch([r for r in rows if r["code"] in ("Tir", "But")],
                          "var(--series-2)"),
         "p_prog": fleches(pas),
+        "p_zones": carte_zones(rows),
     }
 
     # ---- tableau des matchs (une seule fois, les libelles sont traduits en JS)
