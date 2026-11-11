@@ -199,7 +199,7 @@ figcaption,.src{font-size:13px;color:var(--ink-3);margin-top:10px;max-width:62ch
 .bars .bar-name{text-anchor:end}
 .bars .bar-val{font-weight:700;fill:var(--ink-2);font-variant-numeric:tabular-nums}
 .bars .me{fill:var(--ink);font-weight:700}
-.pitches{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;
+.pitches{display:grid;grid-template-columns:repeat(auto-fit,minmax(224px,1fr));gap:16px;
   margin-top:24px}
 .pitchbox{background:var(--pitch-bg);border:1px solid var(--line);border-radius:14px;
   box-shadow:var(--sh-1);
@@ -261,11 +261,15 @@ footer .wrap{max-width:980px}
   .bar nav{display:none}
   section{padding:52px 0}
 }
-.zonebox{max-width:660px;margin:30px auto;background:var(--surface-1);
-  border:1px solid var(--line);border-radius:16px;padding:18px 20px 12px;box-shadow:var(--sh-1)}
-.zonebox h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px}
-.zonebox h3 .cnt{margin-left:auto;color:var(--muted);font-weight:500}
-.zonebox .src{margin:8px 0 2px}
+.heats{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
+  gap:18px;margin:28px 0 22px}
+.heatbox{background:var(--surface-1);border:1px solid var(--line);border-radius:16px;
+  padding:18px 20px 14px;box-shadow:var(--sh-1);display:flex;flex-direction:column}
+.heatbox h3{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:15px}
+.heatbox h3 .cnt{margin-inline-start:auto;color:var(--ink-3);font-weight:700;
+  font-variant-numeric:tabular-nums;background:var(--surface-2);
+  border-radius:99px;padding:2px 10px;font-size:13px}
+.heatbox .src{margin:12px 0 0}
 text.zn{font:600 4.6px var(--sans);fill:var(--ink);
   text-anchor:middle;paint-order:stroke;stroke:var(--surface-1);stroke-width:1.1px}
 </style>
@@ -361,12 +365,17 @@ text.zn{font:600 4.6px var(--sans);fill:var(--ink);
       <div class="mstat"><b id="v-actions"></b><span data-t="m_actions"></span></div>
       <div class="mstat"><b>{{N_PROG}}</b><span data-t="m_prog"></span></div>
     </div>
-    <div class="zonebox">
-      <h3><span data-t="p_zones"></span>
-        <span class="cnt" id="v-zleg"></span></h3>
-      {{PITCH_P_ZONES}}
-      <p class="src" data-t="zones_cap"></p>
-      <p class="src" data-t="zones_vid"></p>
+    <div class="heats">
+      <div class="heatbox">
+        <h3><span data-t="p_zones"></span><span class="cnt" id="v-zn"></span></h3>
+        {{PITCH_P_ZONES}}
+        <p class="src" data-t="zones_cap"></p>
+      </div>
+      <div class="heatbox">
+        <h3><span data-t="p_video"></span><span class="cnt" id="v-zv"></span></h3>
+        {{PITCH_P_VIDEO}}
+        <p class="src" data-t="zones_vid"></p>
+      </div>
     </div>
     <div class="pitches">
       <div class="pitchbox">
@@ -483,8 +492,8 @@ function apply(lang){
   document.getElementById("v-goals").textContent = D.goals;
   document.getElementById("v-drib").textContent = D.nDrib + "/" + D.nDrib;
   document.getElementById("v-actions").textContent = D.zones.n;
-  document.getElementById("v-zleg").textContent =
-      (T.zones_leg[lang] || "").replace("%d", D.zones.n).replace("%d", D.nVid);
+  document.getElementById("v-zn").textContent = D.zones.n;
+  document.getElementById("v-zv").textContent = D.nVid;
   document.getElementById("v-rank-club").innerHTML = D.rangClub + sup(D.ordClub);
   document.getElementById("v-rank-div").innerHTML  = D.rangDiv  + sup(D.ordDiv);
   document.getElementById("v-rank-team").innerHTML = D.rangEquipe + sup(D.ordTeam);

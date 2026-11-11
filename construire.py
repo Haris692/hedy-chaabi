@@ -262,77 +262,64 @@ def lis_positions(chemin):
     return out
 
 
-def carte_zones(marques, video=(), cols=5, rangs=3, w=105.0, h=68.0):
-    # NOM : `zones` est deja une variable locale de construire(), qui la
-    # masquerait -- Python ne signale rien, l'appel echoue a l'execution.
-    """Carte de chaleur en cases chiffrees, pas en nuage flou.
+def chaleur(marques, w=105.0, h=68.0, teinte="var(--accent)", ident="h"):
+    """Une vraie carte de chaleur : un champ de densite continu, pas des cases.
 
-    POURQUOI DES CASES. 48 actions etalees en densite continue donnent une
-    tache qui suggere une precision qu'on n'a pas -- le relevé est selectif,
-    la forme tient, la densite non. Une case porte un NOMBRE : on voit
-    l'intensite et on peut la verifier.
+    COMMENT. Chaque action depose deux disques translucides -- un large pour le
+    halo, un petit pour le coeur -- et le tout passe dans un flou gaussien. La
+    ou les actions se superposent, les opacites s'additionnent et la couleur
+    monte. C'est une estimation de densite, faite par le navigateur, sans
+    aucune image a charger.
 
-    POURQUOI 5 x 3. Trois rangs, ce sont les trois couloirs deja cites dans le
-    texte de la page (droite / axe / gauche), donc les totaux par rang doivent
-    retomber sur 27 / 16 / 5 -- un controle visible par le lecteur. Cinq
-    colonnes donnent la profondeur sans descendre sous ~3 actions par case,
-    en dessous de quoi on dessinerait du bruit.
+    DEUX ECHELLES et non une seule : un flou unique donne soit une tache molle
+    qui ne montre plus rien, soit des points durs qui ne se fondent pas.
 
-    Le repere est celui de `pitch()` : attaque vers la DROITE, et y=0 est le
-    couloir droit, donc en BAS.
+    LES LIGNES DU TERRAIN SONT DESSINEES PAR-DESSUS. Sous la chaleur, le
+    terrain disparait et la carte n'est plus lisible -- piege deja paye sur les
+    figures mplsoccer du projet (`line_zorder`).
+
+    `ident` prefixe les identifiants SVG : deux cartes sur la meme page
+    partageraient sinon le meme filtre, et la seconde ecraserait la premiere.
     """
     S = 'fill="none" stroke="var(--pitch-line)" stroke-width=".5"'
-    grille = [[0]*cols for _ in range(rangs)]
-    for r in marques:
-        c = min(cols-1, max(0, int(r["x"] / 100.0 * cols)))
-        g = min(rangs-1, max(0, int(r["y"] / 100.0 * rangs)))
-        grille[g][c] += 1
-    maxi = max((v for l in grille for v in l), default=1) or 1
-    cw, ch = w / cols, h / rangs
-    # TROIS COUCHES, dans cet ordre : les cases, puis les anneaux video, puis
-    # les NOMBRES. Dessines apres les anneaux, les chiffres restent lisibles la
-    # ou les points se concentrent -- c'est justement la qu'il y en a le plus.
-    out, chiffres = [], []
-    for g in range(rangs):
-        for c in range(cols):
-            n = grille[g][c]
-            x, y = c * cw, (rangs - 1 - g) * ch          # y=0 en bas
-            out.append('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" '
-                       'fill="var(--series-1)" fill-opacity="%.3f"/>'
-                       % (x, y, cw, ch, .07 + .68 * n / maxi))
-            if n:
-                chiffres.append('<text x="%.2f" y="%.2f" class="zn">%d</text>'
-                                % (x + cw/2, y + ch/2 + 2.2, n))
-    L = ['<rect x="0" y="0" width="%g" height="%g" %s/>' % (w, h, S),
-         '<line x1="%g" y1="0" x2="%g" y2="%g" %s/>' % (w/2, w/2, h, S),
-         '<circle cx="%g" cy="%g" r="9.15" %s/>' % (w/2, h/2, S)]
-    for dx, prof, larg in ((0, 16.5, 40.3), (w-16.5, 16.5, 40.3),
-                           (0, 5.5, 18.3), (w-5.5, 5.5, 18.3)):
-        L.append('<rect x="%g" y="%g" width="%g" height="%g" %s/>'
-                 % (dx, (h-larg)/2, prof, larg, S))
-    # LES POINTS VIDEO, en surimpression et non fondus dans le comptage.
-    # Ils sont SURS sur l'identite -- chacun vient d'une image ou le detecteur
-    # a lu le numero 95 -- mais BIAISES sur la repartition : 82 des 85 sont
-    # dans le dernier tiers, parce qu'on ne le detecte que sur les plans
-    # resserres pres d'un but. Les fondre dans les cases ferait passer les
-    # 21 actions du dernier tiers a plus de 100 sur 133 et contredirait le
-    # releve manuel sur la meme carte. Ils apportent autre chose : les moments
-    # SANS ballon, que le releve ne contient pas.
-    for v in video:
-        out.append('<circle cx="%.2f" cy="%.2f" r="1.0" fill="none" '
-                   'stroke="var(--ink)" stroke-width=".45" opacity=".5"/>'
-                   % (v["x"]/100.0*w, (100-v["y"])/100.0*h))
-    out += chiffres
+    lignes = [
+        '<rect x="0" y="0" width="%g" height="%g" %s/>' % (w, h, S),
+        '<line x1="%g" y1="0" x2="%g" y2="%g" %s/>' % (w / 2, w / 2, h, S),
+        '<circle cx="%g" cy="%g" r="9.15" %s/>' % (w / 2, h / 2, S),
+    ]
+    for dx, prof, larg in ((0, 16.5, 40.3), (w - 16.5, 16.5, 40.3),
+                           (0, 5.5, 18.3), (w - 5.5, 5.5, 18.3)):
+        lignes.append('<rect x="%g" y="%g" width="%g" height="%g" %s/>'
+                      % (dx, (h - larg) / 2, prof, larg, S))
 
-    mx = sum(r["x"] for r in marques) / max(len(marques), 1)
-    my = sum(r["y"] for r in marques) / max(len(marques), 1)
-    croix = ('<circle cx="%.2f" cy="%.2f" r="2.4" fill="var(--surface-1)" '
-             'stroke="var(--series-1)" stroke-width="1.4"/>'
-             % (mx/100.0*w, (100-my)/100.0*h))
+    def disques(r, op):
+        return "".join('<circle cx="%.2f" cy="%.2f" r="%g" fill="%s" opacity="%g"/>'
+                       % (m["x"]/100.0*w, (100-m["y"])/100.0*h, r, teinte, op)
+                       for m in marques)
+
+    defs = ('<defs>'
+            '<filter id="%sf1" x="-25%%" y="-25%%" width="150%%" height="150%%">'
+            '<feGaussianBlur stdDeviation="4.6"/></filter>'
+            '<filter id="%sf2" x="-25%%" y="-25%%" width="150%%" height="150%%">'
+            '<feGaussianBlur stdDeviation="2.1"/></filter>'
+            '<clipPath id="%scp"><rect x="0" y="0" width="%g" height="%g"/></clipPath>'
+            '</defs>' % (ident, ident, ident, w, h))
+    champ = ('<g clip-path="url(#%scp)">'
+             '<g filter="url(#%sf1)">%s</g>'
+             '<g filter="url(#%sf2)">%s</g></g>'
+             % (ident, ident, disques(10.5, .085), ident, disques(4.6, .13)))
+
+    mx = sum(m["x"] for m in marques) / max(len(marques), 1)
+    my = sum(m["y"] for m in marques) / max(len(marques), 1)
+    croix = ('<g><circle cx="%.2f" cy="%.2f" r="3" fill="var(--surface-1)" '
+             'stroke="%s" stroke-width="1.5"/>'
+             '<circle cx="%.2f" cy="%.2f" r="1.1" fill="%s"/></g>'
+             % (mx/100.0*w, (100-my)/100.0*h, teinte,
+                mx/100.0*w, (100-my)/100.0*h, teinte))
     fleche = ('<path d="M%g %g h6 m-2 -2 l2 2 l-2 2" fill="none" '
-              'stroke="var(--pitch-line)" stroke-width=".5"/>') % (w/2-3, h+5)
-    return ('<svg viewBox="-1 -1 %g %g" class="pitch" role="img">%s%s%s%s</svg>'
-            % (w+2, h+10, "".join(out), "".join(L), croix, fleche))
+              'stroke="var(--pitch-line)" stroke-width=".5"/>') % (w / 2 - 3, h + 5)
+    return ('<svg viewBox="-1 -1 %g %g" class="pitch" role="img">%s%s%s%s%s</svg>'
+            % (w + 2, h + 10, defs, champ, "".join(lignes), croix, fleche))
 
 
 def lis_passes(chemin):
@@ -504,6 +491,8 @@ TRAD = {
  "p_passes": {"en": "Passes", "fr": "Passes", "ar": "التمريرات"},
  "p_prog": {"en": "Progressive passes", "fr": "Passes progressives",
             "ar": "التمريرات التقدمية"},
+ "m_prog": {"en": "progressive passes", "fr": "passes progressives",
+            "ar": "تمريرات تقدمية"},
  "prog_cap": {
    "en": "Progressive = played forward AND gaining at least 10 m, either in "
          "depth or in distance to goal. First half only — arrows show "
@@ -514,44 +503,34 @@ TRAD = {
    "ar": "التمريرة التقدمية: تُلعب إلى الأمام وتكسب 10 أمتار على الأقل، عمقاً "
          "أو اقتراباً من المرمى. الشوط الأول فقط — تُظهر الأسهم نقطة "
          "الانطلاق ونقطة الوصول."},
- "m_prog": {"en": "progressive passes", "fr": "passes progressives",
-            "ar": "تمريرات تقدمية"},
  "p_zones": {"en": "Where he acts", "fr": "Où il agit", "ar": "أين يتحرك"},
- "zones_leg": {
-   "en": "%d actions coded by hand · %d positions read off the video",
-   "fr": "%d actions codées à la main · %d positions relevées sur la vidéo",
-   "ar": "%d فعل مُرمَّز يدوياً · %d موضع مقروء من الفيديو"},
- "zones_vid": {
-   "en": "The rings are positions measured on the video. Each one comes from a "
-         "frame where the detector actually READ the number 95 — identity "
-         "is not in doubt. They add moments OFF the ball, which hand coding "
-         "does not contain. They cluster high up the pitch because the camera, "
-         "and the detector, follow the ball: they are certain about WHO, not "
-         "representative of WHERE. They are drawn separately and never added "
-         "to the cell counts.",
-   "fr": "Les anneaux sont des positions mesurées sur la vidéo. Chacune vient "
-         "d’une image où le détecteur a réellement LU le numéro 95 — "
-         "l’identité n’est pas en doute. Elles ajoutent des moments "
-         "SANS ballon, que le codage manuel ne contient pas. Elles se "
-         "concentrent haut parce que la caméra, et le détecteur, suivent le "
-         "ballon : elles sont sûres sur le QUI, pas représentatives du OÙ. "
-         "Elles sont dessinées à part et jamais ajoutées au compte des cases.",
-   "ar": "الحلقات مواضع مقيسة من الفيديو، كل واحدة من لقطة قرأ فيها النظام الرقم "
-         "95 فعلياً — الهوية ليست موضع شك. تضيف لحظات بدون كرة لا يحتويها "
-         "الترميز اليدوي. تتجمع في العمق لأن الكاميرا والنظام يتبعان الكرة: "
-         "مؤكدة في «مَن» لا ممثّلة في «أين». تُرسم منفصلة ولا تُضاف إلى الأرقام."},
+ "p_video": {"en": "Where he was seen", "fr": "Où on l’a vu",
+             "ar": "أين رُصد"},
  "zones_cap": {
-   "en": "Each cell counts his actions. Rows are the three channels — "
-         "they add up to the 27 / 16 / 5 quoted below. The ring marks the "
-         "average position of his actions, not of his presence: time spent "
-         "without the ball is not in here.",
-   "fr": "Chaque case compte ses actions. Les rangs sont les trois couloirs — "
-         "ils retombent sur les 27 / 16 / 5 cités plus bas. L’anneau marque "
-         "la position moyenne de ses ACTIONS, pas de sa présence : le temps "
-         "passé sans ballon n’y figure pas.",
-   "ar": "كل خانة تُحصي أفعاله. الصفوف هي الممرات الثلاثة — مجموعها 27 / 16 / 5 "
-         "المذكورة أدناه. الحلقة تُشير إلى متوسط موضع أفعاله لا حضوره: الوقت "
-         "المقضي دون كرة غير محسوب."},
+   "en": "The density of his 48 hand-coded actions. The marker is their average "
+         "position — of his ACTIONS, not of his presence: time spent off "
+         "the ball is not in here. Attacking left to right.",
+   "fr": "La densité de ses 48 actions codées à la main. Le repère marque leur "
+         "position moyenne — celle de ses ACTIONS, pas de sa présence : le "
+         "temps passé sans ballon n’y figure pas. Attaque vers la droite.",
+   "ar": "كثافة أفعاله الـ48 المُرمَّزة يدوياً. العلامة هي متوسط موضع أفعاله لا "
+         "حضوره: الوقت المقضي دون كرة غير محسوب. يهاجم من اليسار إلى اليمين."},
+ "zones_vid": {
+   "en": "Positions measured on the video. Each one comes from a frame where "
+         "the detector actually READ the number 95 — identity is not in "
+         "doubt, and they add moments OFF the ball. But they sit high because "
+         "the camera, and the detector, follow the ball: certain about WHO, not "
+         "representative of WHERE. Never merged into the map on the left.",
+   "fr": "Positions mesurées sur la vidéo. Chacune vient d’une image où le "
+         "détecteur a réellement LU le numéro 95 — l’identité n’est "
+         "pas en doute, et elles ajoutent des moments SANS ballon. Mais elles se "
+         "tiennent haut parce que la caméra, et le détecteur, suivent le ballon : "
+         "sûres sur le QUI, pas représentatives du OÙ. Jamais mélangées à la "
+         "carte de gauche.",
+   "ar": "مواضع مقيسة من الفيديو، كل واحدة من لقطة قرأ فيها النظام الرقم 95 "
+         "فعلياً — الهوية ليست موضع شك، وتضيف لحظات بدون كرة. لكنها تتجمع "
+         "في العمق لأن الكاميرا والنظام يتبعان الكرة: مؤكدة في «مَن» لا ممثّلة "
+         "في «أين». لا تُدمج أبداً مع الخريطة المجاورة."},
  "p_drib": {"en": "Dribbles", "fr": "Dribbles", "ar": "المراوغات"},
  "p_shots": {"en": "Shots", "fr": "Tirs", "ar": "التسديدات"},
  "p_cap": {"en": "Attacking left to right. Both halves brought into the same "
@@ -733,7 +712,8 @@ def construire(xml_path):
         "p_shots": pitch([r for r in rows if r["code"] in ("Tir", "But")],
                          "var(--series-2)"),
         "p_prog": fleches(pas),
-        "p_zones": carte_zones(rows, vid),
+        "p_zones": chaleur(rows, ident="ha"),
+        "p_video": chaleur(vid, teinte="var(--ink-3)", ident="hb"),
     }
 
     # ---- tableau des matchs (une seule fois, les libelles sont traduits en JS)
